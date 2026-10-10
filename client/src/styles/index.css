@@ -1,0 +1,36 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+@layer base {
+  html {
+    background-color: var(--color-paper);
+    color: var(--color-brown);
+    font-family: var(--font-body);
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    min-height: 100vh;
+    margin: 0;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    color: var(--color-burgundy);
+  }
+  /* Visible focus everywhere (DESIGN.md §4). Never remove. */
+  :focus-visible {
+    outline: 2px solid var(--color-burgundy);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

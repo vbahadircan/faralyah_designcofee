@@ -74,18 +74,22 @@ Tests for a unit live next to it as `name.test.ts(x)`. Workspaces: `client`, `se
 
 ## Commands
 
-> Valid once the project is scaffolded. Update this section when scripts change.
+Run from the repo root. Scaffolded: workspaces, lint, typecheck, unit tests, build.
 
 ```
 npm install
-npm run dev          # client (Vite) + server (watch) together
-npm run lint         # ESLint, all workspaces
+npm run dev          # server (tsx watch, :3000) + client (Vite, proxies /api) together
+npm run lint         # ESLint (includes the no-hardcoded-colors rule)
 npm run typecheck    # tsc --noEmit, all workspaces
 npm test             # Vitest, all workspaces
-npm run test:e2e     # Playwright (includes axe accessibility checks)
-npm run build        # build client and server
-npm run seed         # load seed data / create admin (dev DB only)
+npm run format       # Prettier
+npm run build        # client (Vite) then server (tsup, bundles shared)
+NODE_ENV=production node server/dist/index.js   # serves API + built client
 ```
+
+**Not set up yet:** Playwright e2e (`e2e/`), Mongo/Mongoose models, sessions/auth, `npm run seed`, `deploy/` files. Do not reference them as working until added.
+
+Copy `.env.example` to `.env` (server only). The server reads it via `--env-file-if-exists`.
 
 Before saying a task is done: `lint`, `typecheck`, and `test` must pass. For UI changes, also check the page at 360 px width and by keyboard only.
 
