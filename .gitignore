@@ -1,0 +1,41 @@
+# dependencies
+node_modules/
+
+# build output
+.next/
+out/
+dist/
+coverage/
+playwright-report/
+test-results/
+
+# env & secrets
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# logs
+*.log
+npm-debug.log*
+
+# local Claude settings
+.claude/settings.local.json
+
+# uploads and database dumps (never commit)
+uploads/
+*.dump
+*.archive
+mongodump/
+
+# build output (client/server)
+client/dist/
+server/dist/
+shared/dist/
+*.tsbuildinfo
