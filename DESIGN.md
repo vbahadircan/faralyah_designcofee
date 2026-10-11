@@ -51,7 +51,7 @@ Contrast: burgundy and brown on paper (`#F7F7F7`) are > 11:1. Muted text must st
 
 Load only the weights and Latin-extended subset in use; no third-party font requests. Requirement: every font must render **ç ğ ı İ ö ş ü** correctly. Test with "ĞÜŞİÖÇ ığüşöç".
 
-Scale (mobile / ≥ 768 px): `--text-xs` 12/12 · `--text-sm` 14/14 · `--text-base` 16/17 · `--text-lg` 18/20 · `--text-xl` 22/26 · `--text-2xl` 28/36. Body never below 16 px. Prices use `font-variant-numeric: tabular-nums`.
+Scale (compact, matched to the cafe's mock-ups; one scale on all breakpoints): `--text-xs` 11/16 (tags, eyebrows, meta; bold or uppercase only) · `--text-sm` 12/18 (descriptions, secondary text) · `--text-base` 14/20 (body, menu item names, buttons) · `--text-lg` 16/22 (card titles on mobile) · `--text-xl` 18/24 (section and card headings) · `--text-2xl` 22/28 (page titles, prices on package cards). Body is 14 px, nothing below 11 px. Prices use `font-variant-numeric: tabular-nums`. **Form inputs must be 16 px (`text-lg`)**: iOS Safari zooms the page when an input below 16 px is focused. Trade-off to remember: this scale is denser than the usual 16 px body guidance, so keep contrast high and never lower these sizes further.
 
 Turkish casing: use `lang="tr"` on `<html>` and `text-transform: uppercase` only with it set, so `i` → `İ` works. Prefer writing capitalised text in the content instead of CSS-uppercasing.
 
@@ -125,6 +125,40 @@ Türk Kahvesi ............................ 90 ₺
 
 - Paper surface, 1 px `--color-rule` border, `--radius-md`, optional photo at top (4:3), title in display font, meta line (date · age range · price), type tag (Resim, Seramik, Puzzle, Kutu oyunu), one primary action ("Detaylar" / "Kayıt için yaz").
 - This is where playfulness lives: type tag may use burgundy fill and a small hand-drawn icon.
+
+### 4.5a Landing card (home entry)
+
+The QR landing page (`/`) shows **three** full-width cards — Menü, Atölyeler & Etkinlikler, Kampanyalar — that must **all be visible without scrolling** on a 360 × 568 phone and up.
+
+- The page fills `100dvh`; cards share the leftover height with a floor of 104 px and a cap of 144 px. Titles stay on one line at 360 px (`text-lg` on mobile, `text-xl` from `sm`).
+- Anatomy: icon tile (44 px) · title (display font) + 1–2 line description · arrow in a circle. The whole card is one link (`<a>`); title and description form its accessible name; icons are `aria-hidden`.
+- Tones: `burgundy` and `brown` (paper text, gold icon/arrow — gold is allowed on dark) and `paper` (burgundy border and text). A decorative inner gold hairline sits 4 px inside every card (it is a pseudo-element, never the focus ring).
+- States: hover (pointer only) swaps burgundy ↔ brown, paper → tint; focus-visible uses the global 2 px ring outside the card.
+- No photos for now (none exist yet). If photos are added later they must not push the three cards off one screen.
+- Copy states only facts from PRODUCT.md; never invent counts or promotions.
+
+### 4.5b Landing variant B — `/onizleme` (under owner review)
+
+A second landing page built from the cafe's inspiration mock-up, shown next to the simpler landing (§4.5a) so the owners can choose. Whichever is not chosen gets deleted.
+
+- Structure: top bar (brand tile, name, "QR MENÜ / Karşılama", round brand mark) → eyebrow, heading, subtitle → Wi-Fi password card with copy button → three **photo cards**: badge (top-left), gold eyebrow, serif title and arrow over the image, description and chips below. Dotted paper background (`bg-dots`).
+- Uses extra tokens that exist only for this variant: `--radius-lg` (12 px), `--radius-xl` (16 px), `--shadow-card`. If variant B is dropped, remove them.
+- Photos: each card has an optional `photo` path (under `/public`). Until real photos exist a brand-color gradient with a large faint icon is shown. A brown gradient overlay keeps the gold and white text readable over any photo. Photos need Turkish-free `alt=""` (they are decorative) and must follow the brand.md photo rules (parental consent for kids).
+- Everything must stay on **one screen** on phones from 360 × 568. Short screens drop content in this order: badge (< 700 px high), chips (< 760 px high), Wi-Fi card (< 620 px high).
+- Left out on purpose: table verification ("MASA 04") and "Servis Çağır" — not in v1.
+- `WIFI_PASSWORD` is the mock-up's demo value (`TODO(owner)`); replace with the real one or remove the card.
+- Gold appears as text only on dark overlays; on the paper surface it is decoration only (§2.1).
+
+### 4.5c Package card (Etkinlikler / Kampanyalar page)
+
+Used on `/etkinlikler-kampanyalar` (also served at `/kampanyalar`). One card per campaign package, built from the cafe's mock-up.
+
+- Anatomy: tags (soft = tint pill with burgundy text; dark = burgundy pill with paper text) · price block top-right (optional label such as "AVANTAJLI", struck-through old price in a `<del>`, current price in display font) · title (`h2`) · description · fact row with small icons (e.g. "75-90 Dakika") · one button.
+- Prices are never color-only: the old and new prices carry visually hidden labels ("Eski fiyat", "Kampanya fiyatı").
+- Buttons: `primary` "Paketi Seç" or tint-filled ghost "İncele". Online registration is out of scope for v1, so the button toggles an inline note (`aria-expanded` / `aria-controls`) telling people to ask the staff; it must never look like a checkout.
+- Surface: `bg-background`, `--radius-xl`, `--shadow-card`, 1 px rule border (same family as landing variant B).
+- Left out on purpose: "Masaya Özel" (table-specific).
+- Package names, prices and descriptions are **sample data** (`client/src/content/sample-packages.ts`) until the campaigns API exists.
 
 ### 4.6 shadcn primitives
 

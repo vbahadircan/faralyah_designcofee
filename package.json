@@ -12,12 +12,13 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "concurrently -n server,client -c blue,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
+    "dev": "concurrently --kill-others-on-fail -n server,client -c blue,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm test --workspaces --if-present",
-    "build": "npm run build -w client && npm run build -w server"
+    "build": "npm run build -w client && npm run build -w server",
+    "seed": "npm run seed -w server --"
   },
   "devDependencies": {
     "@eslint/js": "^9.34.0",

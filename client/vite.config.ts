@@ -9,7 +9,11 @@ export default defineConfig({
   // Brand assets (logo SVGs) live in the repo-root /public folder.
   publicDir: path.resolve(__dirname, '../public'),
   resolve: { alias: { '@': path.resolve(__dirname, 'src') } },
-  server: { proxy: { '/api': 'http://localhost:3000', '/uploads': 'http://localhost:3000' } },
+  server: {
+    // Fail loudly instead of silently moving to another port when a stale dev server exists.
+    strictPort: true,
+    proxy: { '/api': 'http://localhost:3000', '/uploads': 'http://localhost:3000' },
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test-setup.ts'],

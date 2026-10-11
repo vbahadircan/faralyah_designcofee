@@ -1,6 +1,12 @@
 @import 'tailwindcss';
 @import './tokens.css';
 
+/* Subtle dotted paper texture; color comes from a token. */
+@utility bg-dots {
+  background-image: radial-gradient(var(--color-rule) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+
 @layer base {
   html {
     background-color: var(--color-paper);
@@ -22,6 +28,11 @@
   :focus-visible {
     outline: 2px solid var(--color-burgundy);
     outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
   @media (prefers-reduced-motion: reduce) {
     *,

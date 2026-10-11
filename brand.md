@@ -81,19 +81,8 @@ Rules:
 - Never stretch, rotate, outline, add shadows, or place on busy photos.
 - The sticker's gold ring, disco balls and satin are print/marketing decoration, not part of the app logo.
 
-**TODO(owner):** confirm the script style, or supply the official logo file to replace these.
 
-## 7. Photo style
-
-The menu itself has **no photos** (paper-menu design). Photos appear only on events/workshops pages and the social/marketing side.
-
-- Natural window light, warm tone; no heavy filters.
-- Show **hands doing things**: painting, shaping clay, placing puzzle pieces. Process over polished result.
-- Kids' faces: only with written parental consent. Prefer hands, backs, and over-the-shoulder shots.
-- Real cafe, real objects. No stock photos of generic latte art.
-- Crop: 4:3 or 1:1. Always provide Turkish `alt` text describing the activity.
-
-## 8. Color (summary — full usage in DESIGN.md)
+## 7. Color (summary — full usage in DESIGN.md)
 
 | Name | Hex | Role |
 |---|---|---|

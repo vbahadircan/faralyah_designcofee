@@ -74,22 +74,26 @@ Tests for a unit live next to it as `name.test.ts(x)`. Workspaces: `client`, `se
 
 ## Commands
 
-Run from the repo root. Scaffolded: workspaces, lint, typecheck, unit tests, build.
+Run from the repo root. Scaffolded: workspaces, lint, typecheck, unit/API tests, build, menu data layer and public menu page.
 
 ```
 npm install
 npm run dev          # server (tsx watch, :3000) + client (Vite, proxies /api) together
+npm run seed         # load server/seed/menu.json (or menu.sample.json) into the dev DB
+npm run seed -- --reset   # wipe categories/menu_items first (refuses in production)
 npm run lint         # ESLint (includes the no-hardcoded-colors rule)
 npm run typecheck    # tsc --noEmit, all workspaces
 npm test             # Vitest, all workspaces
 npm run format       # Prettier
 npm run build        # client (Vite) then server (tsup, bundles shared)
-NODE_ENV=production node server/dist/index.js   # serves API + built client
+NODE_ENV=production node --env-file=.env server/dist/index.js   # API + built client
 ```
 
-**Not set up yet:** Playwright e2e (`e2e/`), Mongo/Mongoose models, sessions/auth, `npm run seed`, `deploy/` files. Do not reference them as working until added.
+Setup: copy `.env.example` to `.env` (server only) and have MongoDB running locally (`MONGODB_URI`). API tests use `mongodb-memory-server`, which downloads a MongoDB binary on first install/run; set `MONGOMS_SYSTEM_BINARY` to a local `mongod` to skip that.
 
-Copy `.env.example` to `.env` (server only). The server reads it via `--env-file-if-exists`.
+Data: `server/seed/menu.sample.json` is **invented sample data** (items and prices are not Faralyah's). Real data goes in `server/seed/menu.json` (same shape, prices in ₺), which takes precedence.
+
+**Not set up yet:** Playwright e2e (`e2e/`), sessions/auth and the admin API, events/campaigns, image upload, `deploy/` files. Do not reference them as working until added.
 
 Before saying a task is done: `lint`, `typecheck`, and `test` must pass. For UI changes, also check the page at 360 px width and by keyboard only.
 

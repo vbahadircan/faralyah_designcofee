@@ -22,8 +22,8 @@ The customer menu looks and reads like a **paper menu**: rows of item name + pri
 
 ## 3. Main customer flows
 
-1. **Scan** — QR code at the table opens the menu directly (`/`). No login, no install, no cookie wall.
-2. **Browse** — Category tabs (sticky) scroll to sections; the list reads top to bottom like paper.
+1. **Scan** — QR code at the table opens a welcome page (`/`) with three entry cards — **Menü** (`/menu`), **Atölyeler & Etkinlikler** (`/etkinlikler`), **Kampanyalar** (`/kampanyalar`) — all visible without scrolling. No login, no install, no cookie wall, no table validation.
+2. **Browse** — On `/menu`, category tabs (sticky) scroll to sections; the list reads top to bottom like paper.
 3. **View item** — Item row shows name and price, plus an optional one-line description. No separate item page.
 4. **Discover events & workshops** — A list of upcoming events and workshops (painting, ceramics, puzzle, board games) with date, age range, price, optional cover photo, and how to register. Past events are hidden automatically. Campaigns show as a short dismissible banner/section.
 

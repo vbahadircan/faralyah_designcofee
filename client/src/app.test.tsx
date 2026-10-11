@@ -1,8 +1,10 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { App } from './app';
 import { tr } from './content/tr';
+import { jsonResponse, sampleMenu } from './test-fixtures';
 
 function renderAt(path: string) {
   return render(
@@ -12,16 +14,39 @@ function renderAt(path: string) {
   );
 }
 
+afterEach(() => vi.unstubAllGlobals());
+
 describe('App', () => {
-  it('renders the home page with logo, skip link and allergy footer', () => {
+  it('opens on the welcome page', () => {
     renderAt('/');
-    expect(screen.getByRole('heading', { name: tr.home.title })).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: tr.brand.name })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: tr.nav.skipToContent })).toHaveAttribute(
-      'href',
-      '#main',
-    );
+    expect(screen.getByRole('heading', { level: 1, name: tr.welcome.title })).toBeInTheDocument();
+  });
+
+  it('navigates from the welcome page to the menu and back home', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(sampleMenu)));
+    const user = userEvent.setup();
+    renderAt('/');
+    await user.click(screen.getByRole('link', { name: new RegExp(tr.welcome.cards.menu.title) }));
+    expect(await screen.findByRole('region', { name: 'Tatlılar' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: tr.menu.title })).toBeInTheDocument();
     expect(screen.getByText(tr.footer.allergy)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('link', { name: tr.nav.home }));
+    expect(screen.getByRole('heading', { level: 1, name: tr.welcome.title })).toBeInTheDocument();
+  });
+
+  it('shows a coming-soon page for activities', () => {
+    renderAt('/etkinlikler');
+    expect(screen.getByRole('heading', { name: tr.activities.title })).toBeInTheDocument();
+    expect(screen.getByText(tr.comingSoon)).toBeInTheDocument();
+  });
+
+  it('shows the offers page on both the combined and the campaigns routes', () => {
+    const { unmount } = renderAt('/etkinlikler-kampanyalar');
+    expect(screen.getByRole('heading', { level: 1, name: tr.offers.title })).toBeInTheDocument();
+    unmount();
+    renderAt('/kampanyalar');
+    expect(screen.getByRole('heading', { level: 1, name: tr.offers.title })).toBeInTheDocument();
   });
 
   it('renders a Turkish not-found page with a way back', () => {
