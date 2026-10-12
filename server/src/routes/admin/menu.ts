@@ -66,7 +66,12 @@ adminMenuRouter.post('/items', async (req, res) => {
     return;
   }
   const order = await nextOrder(MenuItem, { categoryId: input.categoryId });
-  const item = await MenuItem.create({ ...input, order });
+  const { priceLargeKurus, ...rest } = input;
+  const item = await MenuItem.create({
+    ...rest,
+    ...(priceLargeKurus != null ? { priceLargeKurus } : {}),
+    order,
+  });
   res.status(201).json({ id: item._id.toString() });
 });
 
@@ -81,14 +86,15 @@ adminMenuRouter.patch('/items/:id', async (req, res) => {
     res.status(400).json({ error: 'unknown_category' });
     return;
   }
-  // An empty description clears it rather than storing "".
-  const { description, ...rest } = input;
-  const update =
-    description === undefined
-      ? rest
-      : description === ''
-        ? { ...rest, $unset: { description: 1 } }
-        : { ...rest, description };
+  // An empty description and a null large price clear the field rather than storing it.
+  const { description, priceLargeKurus, ...rest } = input;
+  const set: Record<string, unknown> = { ...rest };
+  const unset: Record<string, 1> = {};
+  if (description === '') unset.description = 1;
+  else if (description !== undefined) set.description = description;
+  if (priceLargeKurus === null) unset.priceLargeKurus = 1;
+  else if (priceLargeKurus !== undefined) set.priceLargeKurus = priceLargeKurus;
+  const update = Object.keys(unset).length > 0 ? { ...set, $unset: unset } : set;
   const item = await MenuItem.findByIdAndUpdate(req.params.id, update, { runValidators: true });
   if (!item) {
     res.status(404).json({ error: 'not_found' });

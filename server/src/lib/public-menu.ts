@@ -30,6 +30,7 @@ export async function getPublicMenu(): Promise<PublicMenu> {
           id: item._id.toString(),
           name: item.name,
           priceKurus: item.priceKurus,
+          ...(item.priceLargeKurus != null ? { priceLargeKurus: item.priceLargeKurus } : {}),
           ...(item.description ? { description: item.description } : {}),
         })),
       }))

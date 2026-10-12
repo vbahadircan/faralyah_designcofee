@@ -24,6 +24,7 @@ export const adminMenuItemSchema = z.object({
   id: z.string(),
   name: z.string(),
   priceKurus: priceKurusSchema,
+  priceLargeKurus: priceKurusSchema.optional(),
   description: z.string().optional(),
   visible: z.boolean(),
 });

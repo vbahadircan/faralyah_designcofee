@@ -15,6 +15,12 @@ import { priceToInput, RowActions, useAdminAction, type RunAction } from './admi
 
 const t = tr.admin;
 
+/** The optional large-size field: empty means "no large size", otherwise a price in kuruş. */
+function parseLargePrice(input: string): number | null | 'invalid' {
+  if (!input.trim()) return null;
+  return parsePriceInput(input) ?? 'invalid';
+}
+
 export function MenuAdminPage() {
   const { call } = useAdmin();
   const load = useCallback(
@@ -28,6 +34,7 @@ export function MenuAdminPage() {
     <>
       <h1 className="text-2xl font-bold">{t.menu.title}</h1>
       <p className="mt-1 text-sm text-muted-foreground">{t.menu.intro}</p>
+      <p className="mt-1 text-sm text-muted-foreground">{t.menu.sizesHint}</p>
 
       {state.status === 'loading' ? (
         <p aria-busy="true" className="py-6">
@@ -172,23 +179,26 @@ function ItemEditor({
   const { call } = useAdmin();
   const [name, setName] = useState(item.name);
   const [price, setPrice] = useState(priceToInput(item.priceKurus));
+  const [priceLarge, setPriceLarge] = useState(
+    item.priceLargeKurus === undefined ? '' : priceToInput(item.priceLargeKurus),
+  );
   const [description, setDescription] = useState(item.description ?? '');
   const [visible, setVisible] = useState(item.visible);
   const [priceError, setPriceError] = useState<string>();
+  const [priceLargeError, setPriceLargeError] = useState<string>();
 
   function save(event: FormEvent) {
     event.preventDefault();
     const priceKurus = parsePriceInput(price);
-    if (priceKurus === null) {
-      setPriceError(t.common.invalidPrice);
-      return;
-    }
-    setPriceError(undefined);
+    const priceLargeKurus = parseLargePrice(priceLarge);
+    setPriceError(priceKurus === null ? t.common.invalidPrice : undefined);
+    setPriceLargeError(priceLargeKurus === 'invalid' ? t.common.invalidPrice : undefined);
+    if (priceKurus === null || priceLargeKurus === 'invalid') return;
     void run(
       () =>
         call(`/items/${item.id}`, {
           method: 'PATCH',
-          json: { name, priceKurus, description, visible },
+          json: { name, priceKurus, priceLargeKurus, description, visible },
         }),
       t.common.saved,
     );
@@ -215,6 +225,14 @@ function ItemEditor({
             required
             error={priceError}
             onChange={(e) => setPrice(e.target.value)}
+          />
+          <TextField
+            className="w-32"
+            label={t.menu.priceLarge}
+            value={priceLarge}
+            inputMode="decimal"
+            error={priceLargeError}
+            onChange={(e) => setPriceLarge(e.target.value)}
           />
         </div>
         <TextField
@@ -266,23 +284,34 @@ function NewItemForm({
   const { call } = useAdmin();
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
+  const [priceLarge, setPriceLarge] = useState('');
   const [priceError, setPriceError] = useState<string>();
+  const [priceLargeError, setPriceLargeError] = useState<string>();
 
   async function add(event: FormEvent) {
     event.preventDefault();
     const priceKurus = parsePriceInput(price);
-    if (priceKurus === null) {
-      setPriceError(t.common.invalidPrice);
-      return;
-    }
-    setPriceError(undefined);
+    const priceLargeKurus = parseLargePrice(priceLarge);
+    setPriceError(priceKurus === null ? t.common.invalidPrice : undefined);
+    setPriceLargeError(priceLargeKurus === 'invalid' ? t.common.invalidPrice : undefined);
+    if (priceKurus === null || priceLargeKurus === 'invalid') return;
     const ok = await run(
-      () => call('/items', { method: 'POST', json: { name, priceKurus, categoryId } }),
+      () =>
+        call('/items', {
+          method: 'POST',
+          json: {
+            name,
+            priceKurus,
+            categoryId,
+            ...(priceLargeKurus === null ? {} : { priceLargeKurus }),
+          },
+        }),
       t.common.added,
     );
     if (ok) {
       setName('');
       setPrice('');
+      setPriceLarge('');
     }
   }
 
@@ -308,6 +337,14 @@ function NewItemForm({
           required
           error={priceError}
           onChange={(e) => setPrice(e.target.value)}
+        />
+        <TextField
+          className="w-32"
+          label={t.menu.priceLarge}
+          value={priceLarge}
+          inputMode="decimal"
+          error={priceLargeError}
+          onChange={(e) => setPriceLarge(e.target.value)}
         />
         <Button type="submit" variant="secondary" disabled={!name.trim() || !price.trim()}>
           {t.menu.addItem}

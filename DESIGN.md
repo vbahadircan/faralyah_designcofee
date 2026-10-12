@@ -119,7 +119,7 @@ Türk Kahvesi ............................ 90 ₺
 - Format `120 ₺` (non-breaking space), Turkish number formatting via `Intl.NumberFormat('tr-TR')`. Whole prices have no decimals; otherwise `42,50 ₺`.
 - Burgundy, semibold, tabular numerals, right-aligned, `white-space: nowrap`.
 - A price is never color-only information: it is always text.
-- Variant "from" for sized drinks **(proposed, only if needed)**: `S 90 ₺ · L 110 ₺` as two tags.
+- Two sizes (owner decision, 2026-10-12): an item may have an optional large-size price (`priceLargeKurus`; `priceKurus` is then the small size). In a category where any item has one, decorative column heads "KÜÇÜK / BÜYÜK" (`aria-hidden`) sit under the heading and each row shows two price tags in fixed-width columns, each with a visually hidden "Küçük boy" / "Büyük boy" label. Single-price items in that category show their price in the small column and a muted dash "–" (`aria-hidden`, read as "Büyük boy yok") in the large column (owner decision, 2026-10-12). Admin edits it as an optional "Büyük boy (₺)" field; empty means one size.
 
 ### 4.5 Event / workshop card (the only real card)
 

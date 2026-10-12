@@ -33,7 +33,7 @@ The footer always carries one plain line: "Alerjiniz varsa lütfen personele sö
 ## 4. Main admin flows
 
 1. **Sign in** — Email + password, one admin role. The account is created by a seed script; there is no signup.
-2. **Manage menu** — Create/edit categories and items (name, price, optional description, "Menüde göster" on/off). Reorder with up/down buttons. Items turned off disappear from the public menu.
+2. **Manage menu** — Create/edit categories and items (name, price, optional large-size price, optional description, "Menüde göster" on/off). Reorder with up/down buttons. Items turned off disappear from the public menu.
 3. **Manage events & workshops** — Create/edit: title, kind (event or workshop), topic, description, date/time, age range (6–18), price, registration contact, optional cover image, optional free-text recurrence line (e.g. "Her Cumartesi 14:00"), "Yayında" on/off.
 4. **Manage campaigns** — Title, price, optional description, optional photo (uploaded, converted to WebP), "Yayında" on/off, reorder with up/down. No start/end dates in v1.
 
@@ -44,7 +44,7 @@ No preview mode in v1: changes go live within about a minute, and "Yayında" let
 Mongo collections (English names; display values are Turkish):
 
 - **categories**: name, order, active
-- **menu_items**: name, price (integer kuruş), categoryId, description?, order, visible
+- **menu_items**: name, price (integer kuruş), priceLarge? (integer kuruş; when set, price is the small size — used for hot drinks), categoryId, description?, order, visible
 - **events**: kind (`event | workshop`), topic (`painting | ceramics | puzzle | boardgame | other`), title, description, startsAt, endsAt?, ageMin, ageMax, price?, contact/registration info, recurrenceText?, coverImage?, published
 - **campaigns**: title, description?, priceKurus, image?, order, published
 - **admin_users**: email, passwordHash (argon2id); **sessions**: admin sessions (connect-mongo)

@@ -17,6 +17,7 @@ export async function getAdminMenu(): Promise<AdminMenu> {
           id: item._id.toString(),
           name: item.name,
           priceKurus: item.priceKurus,
+          ...(item.priceLargeKurus != null ? { priceLargeKurus: item.priceLargeKurus } : {}),
           visible: item.visible,
           ...(item.description ? { description: item.description } : {}),
         })),

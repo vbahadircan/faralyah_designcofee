@@ -34,6 +34,25 @@ describe('seedMenu', () => {
     ]);
   });
 
+  it('stores an optional large-size price in kuruş', async () => {
+    await seedMenu(
+      seedFileSchema.parse({
+        categories: [
+          {
+            name: 'Sıcak İçecekler',
+            items: [
+              { name: 'Örnek Ürün', price: 110, priceLarge: 130.5 },
+              { name: 'Tek Boy', price: 85 },
+            ],
+          },
+        ],
+      }),
+    );
+    const [sized, single] = (await getPublicMenu()).categories[0]?.items ?? [];
+    expect(sized).toMatchObject({ priceKurus: 11000, priceLargeKurus: 13050 });
+    expect(single).not.toHaveProperty('priceLargeKurus');
+  });
+
   it('the bundled sample file is valid and seeds a full menu', async () => {
     const raw = await readFile(new URL('../../seed/menu.sample.json', import.meta.url), 'utf8');
     const result = await seedMenu(seedFileSchema.parse(JSON.parse(raw)));

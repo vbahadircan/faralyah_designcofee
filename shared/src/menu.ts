@@ -11,7 +11,10 @@ export const priceKurusSchema = z.number().int().min(0).max(10_000_000);
 
 export const menuItemInputSchema = z.object({
   name: z.string().trim().min(1).max(MENU_LIMITS.nameMax),
+  /** The only price, or the small-size price when `priceLargeKurus` is set. */
   priceKurus: priceKurusSchema,
+  /** Optional large-size price ("Büyük boy"). `null` removes it. */
+  priceLargeKurus: priceKurusSchema.nullable().optional(),
   description: z.string().trim().max(MENU_LIMITS.descriptionMax).optional(),
   categoryId: z.string().min(1),
   order: z.number().int().min(0).default(0),
@@ -29,6 +32,7 @@ export const publicMenuItemSchema = z.object({
   id: z.string(),
   name: z.string(),
   priceKurus: priceKurusSchema,
+  priceLargeKurus: priceKurusSchema.optional(),
   description: z.string().optional(),
 });
 

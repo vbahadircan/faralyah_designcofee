@@ -114,6 +114,50 @@ describe('admin menu', () => {
     expect(admin.categories[0]?.items[0]).toMatchObject({ visible: false, priceKurus: 12550 });
   });
 
+  it('sets, keeps and clears an optional large-size price', async () => {
+    const { agent, csrf } = await login();
+    const cat = await agent
+      .post('/api/admin/categories')
+      .set('X-CSRF-Token', csrf)
+      .send({ name: 'Sıcak İçecekler' })
+      .expect(201);
+    const item = await agent
+      .post('/api/admin/items')
+      .set('X-CSRF-Token', csrf)
+      .send({
+        name: 'Örnek Ürün',
+        priceKurus: 10000,
+        priceLargeKurus: 12000,
+        categoryId: cat.body.id,
+      })
+      .expect(201);
+    const publicItem = async () =>
+      publicMenuSchema.parse((await request(app).get('/api/menu')).body).categories[0]?.items[0];
+    expect(await publicItem()).toMatchObject({ priceKurus: 10000, priceLargeKurus: 12000 });
+
+    // A patch that leaves the field out keeps it.
+    await agent
+      .patch(`/api/admin/items/${item.body.id}`)
+      .set('X-CSRF-Token', csrf)
+      .send({ priceKurus: 11000 })
+      .expect(204);
+    expect(await publicItem()).toMatchObject({ priceKurus: 11000, priceLargeKurus: 12000 });
+
+    // null removes it, together with an empty description in the same request.
+    await agent
+      .patch(`/api/admin/items/${item.body.id}`)
+      .set('X-CSRF-Token', csrf)
+      .send({ priceLargeKurus: null, description: '' })
+      .expect(204);
+    expect(await publicItem()).not.toHaveProperty('priceLargeKurus');
+
+    await agent
+      .patch(`/api/admin/items/${item.body.id}`)
+      .set('X-CSRF-Token', csrf)
+      .send({ priceLargeKurus: 12.5 })
+      .expect(400);
+  });
+
   it('rejects invalid input', async () => {
     const { agent, csrf } = await login();
     await agent

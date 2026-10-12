@@ -45,6 +45,15 @@ export const tr = {
     loadError: 'Menü şu an yüklenemedi.',
     retry: 'Tekrar dene',
     empty: 'Şu an burada bir şey yok.',
+    /** Column heads (decorative) and screen-reader labels for two-size prices. */
+    sizes: {
+      small: 'KÜÇÜK',
+      large: 'BÜYÜK',
+      smallLabel: 'Küçük boy',
+      largeLabel: 'Büyük boy',
+      none: '–',
+      noneLabel: 'Büyük boy yok',
+    },
   },
   campaigns: {
     eyebrow: 'KOMBİNE DENEYİM',
@@ -110,6 +119,9 @@ export const tr = {
       itemName: 'Ürün adı',
       price: 'Fiyat (₺)',
       description: 'Açıklama (isteğe bağlı)',
+      priceLarge: 'Büyük boy (₺)',
+      sizesHint:
+        'Büyük boyu olan üründe Fiyat küçük boyun fiyatıdır. Büyük boy alanı boşsa tek fiyat görünür.',
       visible: 'Menüde göster',
       hidden: 'Gizli',
       addItem: 'Ürün ekle',

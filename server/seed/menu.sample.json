@@ -14,27 +14,33 @@
         },
         {
           "name": "Americano",
-          "price": 110
+          "price": 110,
+          "priceLarge": 130
         },
         {
           "name": "Filtre Kahve",
-          "price": 100
+          "price": 100,
+          "priceLarge": 120
         },
         {
           "name": "Cappuccino",
-          "price": 130
+          "price": 130,
+          "priceLarge": 150
         },
         {
           "name": "Latte",
-          "price": 135
+          "price": 135,
+          "priceLarge": 155
         },
         {
           "name": "Flat White",
-          "price": 140
+          "price": 140,
+          "priceLarge": 160
         },
         {
           "name": "Mocha",
-          "price": 150
+          "price": 150,
+          "priceLarge": 170
         },
         {
           "name": "Türk Kahvesi",
@@ -43,11 +49,13 @@
         },
         {
           "name": "Sıcak Çikolata",
-          "price": 140
+          "price": 140,
+          "priceLarge": 160
         },
         {
           "name": "Salep",
-          "price": 120
+          "price": 120,
+          "priceLarge": 140
         },
         {
           "name": "Demleme Çay",
