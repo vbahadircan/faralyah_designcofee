@@ -7,8 +7,10 @@ import { requireAdmin, requireCsrf } from './middleware/auth';
 import { authRouter } from './routes/admin/auth';
 import { createAdminCampaignsRouter } from './routes/admin/campaigns';
 import { adminMenuRouter } from './routes/admin/menu';
+import { adminSettingsRouter } from './routes/admin/settings';
 import { campaignsRouter } from './routes/public/campaigns';
 import { menuRouter } from './routes/public/menu';
+import { settingsRouter } from './routes/public/settings';
 
 export interface AppOptions {
   /** Absolute path to the built client. When set, it is served with SPA fallback. */
@@ -41,6 +43,7 @@ export function createApp({
 
   app.use('/api', menuRouter);
   app.use('/api', campaignsRouter);
+  app.use('/api', settingsRouter);
 
   // Sessions exist only for the admin API; public pages set no cookies.
   const adminSession = session({
@@ -64,6 +67,7 @@ export function createApp({
     requireCsrf,
     adminMenuRouter,
     createAdminCampaignsRouter(uploadsDir),
+    adminSettingsRouter,
   );
 
   // Unknown API routes must be a JSON 404, never the SPA shell.

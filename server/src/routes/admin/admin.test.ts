@@ -254,3 +254,33 @@ describe('admin campaigns', () => {
       .expect(400);
   });
 });
+
+describe('site settings', () => {
+  it('starts empty, saves and clears the Wi-Fi password, and only for admins', async () => {
+    expect((await request(app).get('/api/settings').expect(200)).body).toEqual({});
+    await request(app).patch('/api/admin/settings').send({ wifiPassword: 'x' }).expect(401);
+
+    const { agent, csrf } = await login();
+    await agent
+      .patch('/api/admin/settings')
+      .set('X-CSRF-Token', csrf)
+      .send({ wifiPassword: '  ornek-sifre-123  ' })
+      .expect(204);
+    expect((await request(app).get('/api/settings')).body).toEqual({
+      wifiPassword: 'ornek-sifre-123',
+    });
+
+    await agent
+      .patch('/api/admin/settings')
+      .set('X-CSRF-Token', csrf)
+      .send({ wifiPassword: 'x'.repeat(64) })
+      .expect(400);
+
+    await agent
+      .patch('/api/admin/settings')
+      .set('X-CSRF-Token', csrf)
+      .send({ wifiPassword: '' })
+      .expect(204);
+    expect((await agent.get('/api/admin/settings')).body).toEqual({});
+  });
+});

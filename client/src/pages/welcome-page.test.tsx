@@ -1,10 +1,18 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { tr } from '@/content/tr';
-import { WIFI_PASSWORD } from '@/components/welcome-alt/wifi-card';
+import { jsonResponse } from '@/test-fixtures';
 import { WelcomePage } from './welcome-page';
+
+/** Fake value for tests; the real one is set by staff in the admin panel. */
+const WIFI_PASSWORD = 'ornek-sifre-123';
+const stubSettings = (body: unknown) =>
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(body)));
+
+beforeEach(() => stubSettings({ wifiPassword: WIFI_PASSWORD }));
+afterEach(() => vi.unstubAllGlobals());
 
 const t = tr.welcome;
 const renderPage = () =>
@@ -39,14 +47,6 @@ describe('WelcomePage', () => {
     }
   });
 
-  it('shows the real photos on the two cards', () => {
-    const { container } = renderPage();
-    const sources = [...container.querySelectorAll('nav img')].map((i) => i.getAttribute('src'));
-    expect(sources).toEqual(['/cofee-table.jpg', '/children-workshops.jpg']);
-    for (const img of container.querySelectorAll('nav img')) expect(img).toHaveAttribute('alt', '');
-  });
-
-  it('is operable by keyboard in reading order', async () => {
   it('shows the sticker logo named after the cafe', () => {
     renderPage();
     expect(screen.getByRole('img', { name: tr.brand.name })).toHaveAttribute(
@@ -55,8 +55,17 @@ describe('WelcomePage', () => {
     );
   });
 
+  it('shows the real photos on the two cards', () => {
+    const { container } = renderPage();
+    const sources = [...container.querySelectorAll('nav img')].map((i) => i.getAttribute('src'));
+    expect(sources).toEqual(['/cofee-table.jpg', '/children-workshops.jpg']);
+    for (const img of container.querySelectorAll('nav img')) expect(img).toHaveAttribute('alt', '');
+  });
+
+  it('is operable by keyboard in reading order', async () => {
     const user = userEvent.setup();
     renderPage();
+    await screen.findByRole('button', { name: t.wifi.copy });
     await user.tab();
     expect(screen.getByRole('button', { name: t.wifi.copy })).toHaveFocus();
     await user.tab();
@@ -68,9 +77,17 @@ describe('WelcomePage', () => {
   it('copies the Wi-Fi password and announces it', async () => {
     const user = userEvent.setup();
     renderPage();
-    expect(screen.getByText(WIFI_PASSWORD)).toBeInTheDocument();
+    expect(await screen.findByText(WIFI_PASSWORD)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: t.wifi.copy }));
     expect(await navigator.clipboard.readText()).toBe(WIFI_PASSWORD);
     expect(screen.getByRole('status')).toHaveTextContent(t.wifi.copied);
+  });
+
+  it('hides the Wi-Fi card when no password is set', async () => {
+    stubSettings({});
+    renderPage();
+    expect(await screen.findByRole('heading', { level: 1 })).toBeInTheDocument();
+    await vi.waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/settings', expect.anything()));
+    expect(screen.queryByRole('button', { name: t.wifi.copy })).not.toBeInTheDocument();
   });
 });

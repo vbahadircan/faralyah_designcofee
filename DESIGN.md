@@ -135,7 +135,7 @@ Built from the cafe's inspiration mock-up; chosen by the owner over the earlier 
 - Photos: each card has an optional `photo` path (under `/public`). Until real photos exist a brand-color gradient with a large faint icon is shown. A brown gradient overlay keeps the gold and white text readable over any photo. Photos need Turkish-free `alt=""` (they are decorative) and must follow the brand.md photo rules (parental consent for kids).
 - Everything must stay on **one screen** on phones from 360 × 568. Short screens drop content in this order: badge (< 700 px high), chips (< 760 px high), Wi-Fi card (< 620 px high).
 - Left out on purpose: table verification ("MASA 04") and "Servis Çağır" — not in v1.
-- `WIFI_PASSWORD` is the mock-up's demo value (`TODO(owner)`); replace with the real one or remove the card.
+- The Wi-Fi password is edited by staff in the admin panel (Ayarlar, `/admin/ayarlar`) and loaded from `GET /api/settings`. With no password set the card is not shown (owner decision, 2026-10-12).
 - Gold appears as text only on dark overlays; on the paper surface it is decoration only (§2.1).
 
 ### 4.5b Campaign card (`/kampanyalar`)

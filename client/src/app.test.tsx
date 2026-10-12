@@ -23,7 +23,11 @@ describe('App', () => {
   });
 
   it('navigates from the welcome page to the menu and back home', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(sampleMenu)));
+    // The welcome page loads the settings, the menu page the menu: answer each by URL.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => jsonResponse(url === '/api/menu' ? sampleMenu : {})),
+    );
     const user = userEvent.setup();
     renderAt('/');
     await user.click(screen.getByRole('link', { name: new RegExp(tr.welcome.cards.menu.title) }));

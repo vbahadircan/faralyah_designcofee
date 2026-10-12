@@ -90,6 +90,7 @@ export const tr = {
       label: 'Yönetim menüsü',
       menu: 'Menü',
       campaigns: 'Kampanyalar',
+      settings: 'Ayarlar',
       site: 'Siteyi gör',
       logout: 'Çıkış yap',
     },
@@ -118,10 +119,10 @@ export const tr = {
       categoryActive: 'Sitede göster',
       itemName: 'Ürün adı',
       price: 'Fiyat (₺)',
-      description: 'Açıklama (isteğe bağlı)',
       priceLarge: 'Büyük boy (₺)',
       sizesHint:
         'Büyük boyu olan üründe Fiyat küçük boyun fiyatıdır. Büyük boy alanı boşsa tek fiyat görünür.',
+      description: 'Açıklama (isteğe bağlı)',
       visible: 'Menüde göster',
       hidden: 'Gizli',
       addItem: 'Ürün ekle',
@@ -152,6 +153,12 @@ export const tr = {
       add: 'Kampanya ekle',
       newCampaign: 'Yeni kampanya',
       empty: 'Henüz kampanya yok. Aşağıdan ekleyin.',
+    },
+    settings: {
+      title: 'Ayarlar',
+      intro: 'Değişiklikler sitede yaklaşık 1 dakika içinde görünür.',
+      wifiPassword: 'Wi-Fi şifresi',
+      wifiHint: 'Giriş sayfasındaki Wi-Fi kartında görünür. Boş bırakırsanız kart gösterilmez.',
     },
   },
 } as const;

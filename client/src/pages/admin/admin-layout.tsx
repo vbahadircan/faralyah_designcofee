@@ -116,6 +116,9 @@ export function AdminLayout() {
           <NavLink to="/admin/kampanyalar" className={navLink}>
             {t.nav.campaigns}
           </NavLink>
+          <NavLink to="/admin/ayarlar" className={navLink}>
+            {t.nav.settings}
+          </NavLink>
         </nav>
         <div
           role="status"

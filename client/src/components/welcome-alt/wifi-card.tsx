@@ -2,10 +2,8 @@ import { Check, Copy, Wifi } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { tr } from '@/content/tr';
 
-/** TODO(owner): replace with the cafe's real Wi-Fi password. This is the demo value from the mock-up. */
-export const WIFI_PASSWORD = 'artcoffee2024';
-
-export function WifiCard({ password = WIFI_PASSWORD }: { password?: string }) {
+/** The Wi-Fi password staff set under Yönetim Paneli → Ayarlar, with a copy button. */
+export function WifiCard({ password }: { password: string }) {
   const t = tr.welcome.wifi;
   const [copied, setCopied] = useState(false);
 

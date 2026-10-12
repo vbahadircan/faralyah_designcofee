@@ -102,4 +102,27 @@ describe('admin panel', () => {
     expect(price).toHaveAccessibleDescription(t.common.invalidPrice);
     expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'PATCH')).toBe(false);
   });
+
+  it('saves the Wi-Fi password from the Ayarlar page', async () => {
+    const fetchMock = stubApi({
+      'GET /api/admin/session': () => jsonResponse(SESSION),
+      'GET /api/admin/settings': () => jsonResponse({}),
+      'PATCH /api/admin/settings': () => new Response(null, { status: 204 }),
+    });
+    const user = userEvent.setup();
+    renderAt('/admin/ayarlar');
+
+    const field = await screen.findByLabelText(t.settings.wifiPassword);
+    expect(screen.getByRole('link', { name: t.nav.settings })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    await user.type(field, 'ornek-sifre-123');
+    await user.click(screen.getByRole('button', { name: t.common.save }));
+
+    expect(await screen.findByRole('status')).toHaveTextContent(t.common.saved);
+    const call = fetchMock.mock.calls.find(([, init]) => init?.method === 'PATCH');
+    expect((call?.[1]?.headers as Record<string, string>)['X-CSRF-Token']).toBe('token-123');
+    expect(JSON.parse(String(call?.[1]?.body))).toEqual({ wifiPassword: 'ornek-sifre-123' });
+  });
 });
