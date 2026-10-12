@@ -3,6 +3,7 @@ import { useState, type FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/field';
+import { StickerLogo } from '@/components/ui/sticker-logo';
 import { tr } from '@/content/tr';
 import { adminRequest, ApiError } from '@/lib/admin-api';
 
@@ -37,11 +38,7 @@ export function LoginPage() {
 
   return (
     <main id="main" className="mx-auto flex min-h-dvh max-w-[400px] flex-col justify-center px-4">
-      <img
-        src="/brand/faralyah-lockup-burgundy.svg"
-        alt={tr.brand.name}
-        className="mx-auto h-24 w-auto"
-      />
+      <StickerLogo className="mx-auto size-32" />
       <h1 className="mt-4 text-center text-2xl font-bold">{t.login.title}</h1>
       <form onSubmit={submit} className="mt-6 flex flex-col gap-4" noValidate>
         {error ? (

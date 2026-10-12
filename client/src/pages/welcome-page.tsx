@@ -1,4 +1,5 @@
 import { Coffee, Palette } from 'lucide-react';
+import { StickerLogo } from '@/components/ui/sticker-logo';
 import { PreviewCard } from '@/components/welcome-alt/preview-card';
 import { TopBar } from '@/components/welcome-alt/top-bar';
 import { WifiCard } from '@/components/welcome-alt/wifi-card';
@@ -23,6 +24,7 @@ export function WelcomePage() {
             <p className="mx-auto mt-0.5 max-w-[38ch] text-sm text-balance text-muted-foreground">
               {t.subtitle}
             </p>
+            <StickerLogo className="mx-auto mb-1 size-20 [@media(min-height:700px)]:size-28" />
           </div>
           <div className="[@media(max-height:620px)]:hidden">
             <WifiCard />

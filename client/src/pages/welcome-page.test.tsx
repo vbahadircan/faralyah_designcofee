@@ -47,6 +47,14 @@ describe('WelcomePage', () => {
   });
 
   it('is operable by keyboard in reading order', async () => {
+  it('shows the sticker logo named after the cafe', () => {
+    renderPage();
+    expect(screen.getByRole('img', { name: tr.brand.name })).toHaveAttribute(
+      'src',
+      '/brand/faralyah-sticker.webp',
+    );
+  });
+
     const user = userEvent.setup();
     renderPage();
     await user.tab();

@@ -130,7 +130,7 @@ Türk Kahvesi ............................ 90 ₺
 
 Built from the cafe's inspiration mock-up; chosen by the owner over the earlier three-card landing (2026-10-12).
 
-- Structure: top bar (brand tile, name, "QR MENÜ / Karşılama", round brand mark) → eyebrow, heading, subtitle → Wi-Fi password card with copy button → two **photo cards**, Menü and Kampanyalar: badge (top-left), gold eyebrow, serif title and arrow over the image, description and chips below. Dotted paper background (`bg-dots`).
+- Structure: top bar (brand tile, name, "QR MENÜ / Karşılama", round brand mark) → sticker logo (80 px, 112 px on screens ≥ 700 px high; see brand.md §6) → eyebrow, heading, subtitle → Wi-Fi password card with copy button → two **photo cards**, Menü and Kampanyalar: badge (top-left), gold eyebrow, serif title and arrow over the image, description and chips below. Dotted paper background (`bg-dots`).
 - Uses `--radius-lg` (12 px), `--radius-xl` (16 px) and `--shadow-card`, shared with the campaign card.
 - Photos: each card has an optional `photo` path (under `/public`). Until real photos exist a brand-color gradient with a large faint icon is shown. A brown gradient overlay keeps the gold and white text readable over any photo. Photos need Turkish-free `alt=""` (they are decorative) and must follow the brand.md photo rules (parental consent for kids).
 - Everything must stay on **one screen** on phones from 360 × 568. Short screens drop content in this order: badge (< 700 px high), chips (< 760 px high), Wi-Fi card (< 620 px high).
