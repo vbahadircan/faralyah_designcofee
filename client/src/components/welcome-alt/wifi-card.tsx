@@ -6,7 +6,7 @@ import { tr } from '@/content/tr';
 export const WIFI_PASSWORD = 'artcoffee2024';
 
 export function WifiCard({ password = WIFI_PASSWORD }: { password?: string }) {
-  const t = tr.welcomeAlt.wifi;
+  const t = tr.welcome.wifi;
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {

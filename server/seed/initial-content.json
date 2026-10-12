@@ -1,0 +1,10 @@
+{
+  "_note": "Owner-provided starting content (2026-10-12). Loaded by `npm run content:init` only into an empty database; after that the admin panel is the source of truth. Prices are in ₺.",
+  "categories": ["Sıcak İçecekler", "Soğuk İçecekler", "Soft İçecekler", "Tatlı & Atıştırmalık"],
+  "campaigns": [
+    { "title": "Figür Boyama + Kahve", "price": 400 },
+    { "title": "Taşlı Boyama + Kahve", "price": 400 },
+    { "title": "Tuval Boyama + Kahve", "price": 350 },
+    { "title": "Çocuk Boyama + Soft İçecek", "price": 300 }
+  ]
+}

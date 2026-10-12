@@ -4,69 +4,180 @@
     {
       "name": "Sıcak İçecekler",
       "items": [
-        { "name": "Espresso", "price": 85 },
-        { "name": "Doppio", "price": 100 },
-        { "name": "Americano", "price": 110 },
-        { "name": "Filtre Kahve", "price": 100 },
-        { "name": "Cappuccino", "price": 130 },
-        { "name": "Latte", "price": 135 },
-        { "name": "Flat White", "price": 140 },
-        { "name": "Mocha", "price": 150 },
-        { "name": "Türk Kahvesi", "price": 95, "description": "Sade, orta veya şekerli" },
-        { "name": "Sıcak Çikolata", "price": 140 },
-        { "name": "Salep", "price": 120 },
-        { "name": "Demleme Çay", "price": 40 },
-        { "name": "Bitki Çayı", "price": 75 }
+        {
+          "name": "Espresso",
+          "price": 85
+        },
+        {
+          "name": "Doppio",
+          "price": 100
+        },
+        {
+          "name": "Americano",
+          "price": 110
+        },
+        {
+          "name": "Filtre Kahve",
+          "price": 100
+        },
+        {
+          "name": "Cappuccino",
+          "price": 130
+        },
+        {
+          "name": "Latte",
+          "price": 135
+        },
+        {
+          "name": "Flat White",
+          "price": 140
+        },
+        {
+          "name": "Mocha",
+          "price": 150
+        },
+        {
+          "name": "Türk Kahvesi",
+          "price": 95,
+          "description": "Sade, orta veya şekerli"
+        },
+        {
+          "name": "Sıcak Çikolata",
+          "price": 140
+        },
+        {
+          "name": "Salep",
+          "price": 120
+        },
+        {
+          "name": "Demleme Çay",
+          "price": 40
+        },
+        {
+          "name": "Bitki Çayı",
+          "price": 75
+        }
       ]
     },
     {
       "name": "Soğuk İçecekler",
       "items": [
-        { "name": "Buzlu Americano", "price": 120 },
-        { "name": "Buzlu Latte", "price": 145 },
-        { "name": "Cold Brew", "price": 135 },
-        { "name": "Frappe", "price": 165 },
-        { "name": "Çikolatalı Milkshake", "price": 160 },
-        { "name": "Çilekli Milkshake", "price": 160 },
-        { "name": "Ev Yapımı Limonata", "price": 110 },
-        { "name": "Şeftali Ice Tea", "price": 100 },
-        { "name": "Taze Portakal Suyu", "price": 130 }
+        {
+          "name": "Buzlu Americano",
+          "price": 120
+        },
+        {
+          "name": "Buzlu Latte",
+          "price": 145
+        },
+        {
+          "name": "Cold Brew",
+          "price": 135
+        },
+        {
+          "name": "Frappe",
+          "price": 165
+        },
+        {
+          "name": "Çikolatalı Milkshake",
+          "price": 160
+        },
+        {
+          "name": "Çilekli Milkshake",
+          "price": 160
+        },
+        {
+          "name": "Ev Yapımı Limonata",
+          "price": 110
+        },
+        {
+          "name": "Şeftali Ice Tea",
+          "price": 100
+        },
+        {
+          "name": "Taze Portakal Suyu",
+          "price": 130
+        }
       ]
     },
     {
-      "name": "Sandviçler",
+      "name": "Soft İçecekler",
       "items": [
-        { "name": "Kaşarlı Tost", "price": 130 },
-        { "name": "Karışık Tost", "price": 150 },
-        { "name": "Çocuk Tostu", "price": 110, "description": "Mini boy, kaşarlı" },
-        { "name": "Hindi Füme Sandviç", "price": 180 },
-        { "name": "Tavuklu Sandviç", "price": 190 },
-        { "name": "Beyaz Peynirli Sandviç", "price": 160 },
-        { "name": "Avokadolu Sandviç", "price": 200 }
+        {
+          "name": "Su",
+          "price": 25
+        },
+        {
+          "name": "Maden Suyu",
+          "price": 40
+        },
+        {
+          "name": "Soda",
+          "price": 40
+        },
+        {
+          "name": "Ayran",
+          "price": 45
+        },
+        {
+          "name": "Kola",
+          "price": 60
+        },
+        {
+          "name": "Meyve Suyu",
+          "price": 60
+        }
       ]
     },
     {
-      "name": "Tatlılar",
+      "name": "Tatlı & Atıştırmalık",
       "items": [
-        { "name": "San Sebastian Cheesecake", "price": 190 },
-        { "name": "Tiramisu", "price": 180 },
-        { "name": "Brownie", "price": 150 },
-        { "name": "Fıstıklı Sütlaç", "price": 120 },
-        { "name": "Magnolia", "price": 160 },
-        { "name": "Waffle", "price": 220, "description": "Meyve ve çikolata ile" },
-        { "name": "Çikolatalı Kurabiye", "price": 60 },
-        { "name": "Günün Keki", "price": 130 }
-      ]
-    },
-    {
-      "name": "İçecekler",
-      "items": [
-        { "name": "Su", "price": 25 },
-        { "name": "Maden Suyu", "price": 40 },
-        { "name": "Soda", "price": 40 },
-        { "name": "Ayran", "price": 45 },
-        { "name": "Kola", "price": 60 },
-        { "name": "Meyve Suyu", "price": 60 }
+        {
+          "name": "San Sebastian Cheesecake",
+          "price": 190
+        },
+        {
+          "name": "Tiramisu",
+          "price": 180
+        },
+        {
+          "name": "Brownie",
+          "price": 150
+        },
+        {
+          "name": "Fıstıklı Sütlaç",
+          "price": 120
+        },
+        {
+          "name": "Magnolia",
+          "price": 160
+        },
+        {
+          "name": "Waffle",
+          "price": 220,
+          "description": "Meyve ve çikolata ile"
+        },
+        {
+          "name": "Çikolatalı Kurabiye",
+          "price": 60
+        },
+        {
+          "name": "Günün Keki",
+          "price": 130
+        },
+        {
+          "name": "Kaşarlı Tost",
+          "price": 130
+        },
+        {
+          "name": "Karışık Tost",
+          "price": 150
+        },
+        {
+          "name": "Çocuk Tostu",
+          "price": 110,
+          "description": "Mini boy, kaşarlı"
+        }
       ]
     }
   ]

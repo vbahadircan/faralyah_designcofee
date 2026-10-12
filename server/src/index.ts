@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { MongoStore } from 'connect-mongo';
 import { createApp } from './app';
 import { connectDb } from './db';
 
@@ -7,9 +8,21 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.PORT ?? 3000);
 const isProd = process.env.NODE_ENV === 'production';
 
+const sessionSecret = process.env.SESSION_SECRET;
+if (isProd && (!sessionSecret || sessionSecret.length < 32)) {
+  console.error('[server] SESSION_SECRET must be set to at least 32 random characters.');
+  process.exit(1);
+}
+
 const app = createApp({
   clientDir: isProd ? path.resolve(here, '../../client/dist') : undefined,
   uploadsDir: path.resolve(here, '../../uploads'),
+  sessionSecret,
+  // Admin sessions survive server restarts; they expire on their own in MongoDB.
+  sessionStore: process.env.MONGODB_URI
+    ? MongoStore.create({ mongoUrl: process.env.MONGODB_URI, collectionName: 'sessions' })
+    : undefined,
+  production: isProd,
 });
 
 // Listen first so the dev proxy never sees ECONNREFUSED while MongoDB connects;

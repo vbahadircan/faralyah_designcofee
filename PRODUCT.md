@@ -22,10 +22,11 @@ The customer menu looks and reads like a **paper menu**: rows of item name + pri
 
 ## 3. Main customer flows
 
-1. **Scan** — QR code at the table opens a welcome page (`/`) with three entry cards — **Menü** (`/menu`), **Atölyeler & Etkinlikler** (`/etkinlikler`), **Kampanyalar** (`/kampanyalar`) — all visible without scrolling. No login, no install, no cookie wall, no table validation.
+1. **Scan** — QR code at the table opens a welcome page (`/`) with two entry cards — **Menü** (`/menu`) and **Kampanyalar** (`/kampanyalar`) — all visible without scrolling (owner decision, 2026-10-12; events/workshops get an entry again once they exist). No login, no install, no cookie wall, no table validation.
 2. **Browse** — On `/menu`, category tabs (sticky) scroll to sections; the list reads top to bottom like paper.
 3. **View item** — Item row shows name and price, plus an optional one-line description. No separate item page.
-4. **Discover events & workshops** — A list of upcoming events and workshops (painting, ceramics, puzzle, board games) with date, age range, price, optional cover photo, and how to register. Past events are hidden automatically. Campaigns show as a short dismissible banner/section.
+4. **Discover events & workshops** — A list of upcoming events and workshops (painting, ceramics, puzzle, board games) with date, age range, price, optional cover photo, and how to register. Past events are hidden automatically. **Not built yet** and not linked from the landing page.
+5. **Campaigns** — `/kampanyalar` lists published campaigns in staff order: photo, title, price, optional description, and an "ask the staff" note (no online booking).
 
 The footer always carries one plain line: "Alerjiniz varsa lütfen personele söyleyin." There are no allergen filters or per-item allergen data in v1.
 
@@ -34,7 +35,7 @@ The footer always carries one plain line: "Alerjiniz varsa lütfen personele sö
 1. **Sign in** — Email + password, one admin role. The account is created by a seed script; there is no signup.
 2. **Manage menu** — Create/edit categories and items (name, price, optional description, "Menüde göster" on/off). Reorder with up/down buttons. Items turned off disappear from the public menu.
 3. **Manage events & workshops** — Create/edit: title, kind (event or workshop), topic, description, date/time, age range (6–18), price, registration contact, optional cover image, optional free-text recurrence line (e.g. "Her Cumartesi 14:00"), "Yayında" on/off.
-4. **Manage campaigns** — Title, text, start/end date, "Yayında" on/off.
+4. **Manage campaigns** — Title, price, optional description, optional photo (uploaded, converted to WebP), "Yayında" on/off, reorder with up/down. No start/end dates in v1.
 
 No preview mode in v1: changes go live within about a minute, and "Yayında" lets staff save drafts unpublished.
 
@@ -45,13 +46,16 @@ Mongo collections (English names; display values are Turkish):
 - **categories**: name, order, active
 - **menu_items**: name, price (integer kuruş), categoryId, description?, order, visible
 - **events**: kind (`event | workshop`), topic (`painting | ceramics | puzzle | boardgame | other`), title, description, startsAt, endsAt?, ageMin, ageMax, price?, contact/registration info, recurrenceText?, coverImage?, published
-- **campaigns**: title, body, startsAt, endsAt, published
+- **campaigns**: title, description?, priceKurus, image?, order, published
+- **admin_users**: email, passwordHash (argon2id); **sessions**: admin sessions (connect-mongo)
 
 Events have one-off dates only; a real recurrence engine is out of scope.
 
 ## 6. Menu structure (v1)
 
-Hot drinks (Sıcak İçecekler) · Cold drinks (Soğuk İçecekler) · Sandwiches (Sandviçler) · Desserts (Tatlılar) · Beverages / bottled (İçecekler). A sixth category is allowed; admin can add or rename categories.
+Four sections (owner decision, 2026-10-12): Sıcak İçecekler · Soğuk İçecekler · Soft İçecekler · Tatlı & Atıştırmalık. Admin can add, rename, hide or reorder categories.
+
+Starting campaigns from the owner: Figür Boyama + Kahve 400 ₺ · Taşlı Boyama + Kahve 400 ₺ · Tuval Boyama + Kahve 350 ₺ · Çocuk Boyama + Soft İçecek 300 ₺. Both lists live in `server/seed/initial-content.json` and are loaded once with `npm run content:init`.
 
 The first real content comes from an owner-provided spreadsheet (category, item name, price), converted to `server/seed/menu.json`. Until then development uses clearly fake data.
 

@@ -18,7 +18,9 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm test --workspaces --if-present",
     "build": "npm run build -w client && npm run build -w server",
-    "seed": "npm run seed -w server --"
+    "seed": "npm run seed -w server --",
+    "admin:create": "npm run admin:create -w server --",
+    "content:init": "npm run content:init -w server"
   },
   "devDependencies": {
     "@eslint/js": "^9.34.0",

@@ -1,65 +1,60 @@
-import { Coffee, Gift, Palette } from 'lucide-react';
-import { HomeCard } from '@/components/home/home-card';
+import { Coffee, Palette } from 'lucide-react';
+import { PreviewCard } from '@/components/welcome-alt/preview-card';
+import { TopBar } from '@/components/welcome-alt/top-bar';
+import { WifiCard } from '@/components/welcome-alt/wifi-card';
 import { tr } from '@/content/tr';
 
-const { cards } = tr.welcome;
+const t = tr.welcome;
 
 /**
- * The QR landing page. Fills the viewport so menu, activities and campaigns are all visible
- * at once without scrolling; the cards share the leftover height (with a floor for short phones).
+ * The QR landing page (/), built from the cafe's mock-up: Wi-Fi card and two photo cards,
+ * Menü and Kampanyalar. Everything stays on one screen: the cards share the leftover height,
+ * and less important lines hide on short phones.
  */
 export function WelcomePage() {
   return (
-    <div className="mx-auto flex min-h-dvh max-w-[640px] flex-col px-4 py-3">
-      <header className="flex justify-center">
-        <img
-          src="/brand/faralyah-lockup-burgundy.svg"
-          alt={tr.brand.name}
-          className="h-24 w-auto"
-        />
-      </header>
-      <main id="main" className="flex flex-1 flex-col">
-        <div className="mt-1 text-center">
-          <h1 className="text-2xl">{tr.welcome.title}</h1>
-          <p className="mx-auto mt-1 max-w-[32ch] text-base text-balance text-muted-foreground">
-            {tr.welcome.subtitle}
-          </p>
-        </div>
-        <nav
-          aria-label={tr.welcome.sectionsNav}
-          className="mt-4 flex flex-1 flex-col justify-center"
-        >
-          <ul className="flex flex-1 flex-col justify-center gap-3">
-            <li className="flex max-h-36 min-h-26 flex-1">
-              <HomeCard
-                to="/menu"
-                icon={Coffee}
-                tone="burgundy"
-                title={cards.menu.title}
-                description={cards.menu.description}
-              />
-            </li>
-            <li className="flex max-h-36 min-h-26 flex-1">
-              <HomeCard
-                to="/etkinlikler"
-                icon={Palette}
-                tone="brown"
-                title={cards.activities.title}
-                description={cards.activities.description}
-              />
-            </li>
-            <li className="flex max-h-36 min-h-26 flex-1">
-              <HomeCard
-                to="/kampanyalar"
-                icon={Gift}
-                tone="paper"
-                title={cards.campaigns.title}
-                description={cards.campaigns.description}
-              />
-            </li>
-          </ul>
-        </nav>
-      </main>
+    <div className="min-h-dvh bg-dots">
+      <div className="mx-auto flex min-h-dvh max-w-[480px] flex-col gap-2 px-3 py-3">
+        <TopBar />
+        <main id="main" className="flex flex-1 flex-col gap-2">
+          <div className="px-2 text-center">
+            <p className="text-xs tracking-widest text-muted-foreground">{t.eyebrow}</p>
+            <h1 className="font-display text-xl font-bold sm:text-2xl">{t.title}</h1>
+            <p className="mx-auto mt-0.5 max-w-[38ch] text-sm text-balance text-muted-foreground">
+              {t.subtitle}
+            </p>
+          </div>
+          <div className="[@media(max-height:620px)]:hidden">
+            <WifiCard />
+          </div>
+          <nav aria-label={t.sectionsNav} className="flex flex-1 flex-col">
+            <ul className="flex flex-1 flex-col gap-2">
+              <li className="flex max-h-60 min-h-30 flex-1">
+                <PreviewCard
+                  to="/menu"
+                  icon={Coffee}
+                  photo="/cofee-table.jpg"
+                  photoPosition="object-[50%_35%]"
+                  placeholder="burgundy"
+                  badgeTone="light"
+                  {...t.cards.menu}
+                />
+              </li>
+              <li className="flex max-h-60 min-h-30 flex-1">
+                <PreviewCard
+                  to="/kampanyalar"
+                  icon={Palette}
+                  photo="/children-workshops.jpg"
+                  photoPosition="object-[50%_30%]"
+                  placeholder="brown"
+                  badgeTone="gold"
+                  {...t.cards.campaigns}
+                />
+              </li>
+            </ul>
+          </nav>
+        </main>
+      </div>
     </div>
   );
 }

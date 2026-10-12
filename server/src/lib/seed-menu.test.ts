@@ -37,8 +37,8 @@ describe('seedMenu', () => {
   it('the bundled sample file is valid and seeds a full menu', async () => {
     const raw = await readFile(new URL('../../seed/menu.sample.json', import.meta.url), 'utf8');
     const result = await seedMenu(seedFileSchema.parse(JSON.parse(raw)));
-    expect(result.categories).toBe(5);
-    expect(await Category.countDocuments()).toBe(5);
+    expect(result.categories).toBe(4);
+    expect(await Category.countDocuments()).toBe(4);
     expect(await MenuItem.countDocuments()).toBe(result.items);
   });
 });

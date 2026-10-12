@@ -74,13 +74,15 @@ Tests for a unit live next to it as `name.test.ts(x)`. Workspaces: `client`, `se
 
 ## Commands
 
-Run from the repo root. Scaffolded: workspaces, lint, typecheck, unit/API tests, build, menu data layer and public menu page.
+Run from the repo root. Scaffolded: workspaces, lint, typecheck, unit/API tests, build, menu and campaigns data layer, public menu and campaigns pages, admin auth and admin panel (menu, campaigns, campaign photo upload).
 
 ```
 npm install
 npm run dev          # server (tsx watch, :3000) + client (Vite, proxies /api) together
 npm run seed         # load server/seed/menu.json (or menu.sample.json) into the dev DB
 npm run seed -- --reset   # wipe categories/menu_items first (refuses in production)
+npm run content:init     # owner's starting categories + campaigns, only into empty collections (safe in production)
+npm run admin:create -- owner@example.com   # create the admin or reset its password (asks for it)
 npm run lint         # ESLint (includes the no-hardcoded-colors rule)
 npm run typecheck    # tsc --noEmit, all workspaces
 npm test             # Vitest, all workspaces
@@ -93,7 +95,7 @@ Setup: copy `.env.example` to `.env` (server only) and have MongoDB running loca
 
 Data: `server/seed/menu.sample.json` is **invented sample data** (items and prices are not Faralyah's). Real data goes in `server/seed/menu.json` (same shape, prices in ₺), which takes precedence.
 
-**Not set up yet:** Playwright e2e (`e2e/`), sessions/auth and the admin API, events/campaigns, image upload, `deploy/` files. Do not reference them as working until added.
+**Not set up yet:** Playwright e2e (`e2e/`), events/workshops, `deploy/` files. Do not reference them as working until added.
 
 Before saying a task is done: `lint`, `typecheck`, and `test` must pass. For UI changes, also check the page at 360 px width and by keyboard only.
 
