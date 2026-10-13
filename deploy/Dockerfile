@@ -20,6 +20,7 @@ COPY --from=build /app/package.json ./
 COPY --from=build /app/shared ./shared
 COPY --from=build /app/server/package.json ./server/package.json
 COPY --from=build /app/server/dist ./server/dist
+COPY --from=build /app/server/src ./server/src
 COPY --from=build /app/server/seed ./server/seed
 COPY --from=build /app/server/tsconfig.json ./server/tsconfig.json
 COPY --from=build /app/client/dist ./client/dist
