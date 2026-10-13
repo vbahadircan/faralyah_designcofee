@@ -1,0 +1,18 @@
+{$DOMAIN} {
+	encode zstd gzip
+
+	# Uploaded photos are served straight from the shared volume.
+	handle /uploads/* {
+		root * /srv
+		header Cache-Control "public, max-age=604800, immutable"
+		file_server
+	}
+
+	handle {
+		reverse_proxy app:3000
+	}
+}
+
+www.{$DOMAIN}, {$LEGACY_DOMAIN}, www.{$LEGACY_DOMAIN} {
+	redir https://{$DOMAIN}{uri} permanent
+}

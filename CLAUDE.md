@@ -27,7 +27,7 @@ Mobile-first web app for **Faralyah Design / Coffee** (Turkey). Public part: pap
 - **Tests:** Vitest + Testing Library (client), Vitest + supertest + mongodb-memory-server (server), Playwright + axe (e2e)
 - **Tooling:** npm workspaces, ESLint, Prettier
 
-**Hosting:** one Ubuntu VPS — Caddy (HTTPS, reverse proxy, serves `uploads/`), Express under systemd, MongoDB on localhost with auth, nightly `mongodump` (plus `uploads/`) copied off the server. Deploys are a manual `deploy.sh` run over SSH (pull, `npm ci`, build, restart). GitHub Actions runs lint and tests only.
+**Hosting:** one Ubuntu 24.04 VPS running Docker Compose — a Caddy container (HTTPS, reverse proxy, serves `uploads/`), an app container (Express + built client), and a MongoDB container with auth and no published port. Data lives in named volumes (`mongo_data`, `uploads`, `caddy_data`). Only Caddy publishes ports (80/443). Nightly `mongodump` (plus `uploads/`) is copied off the server. Deploys are a manual `deploy.sh` run over SSH (pull, `docker compose up -d --build`). GitHub Actions runs lint and tests only.
 
 Do not add a dependency without saying why. Prefer the platform and what is already installed.
 
@@ -57,7 +57,7 @@ shared/
   src/                  # Zod schemas, types, formatPrice
 e2e/                    # Playwright
 public/brand/           # logo SVGs and brand assets (see brand.md)
-deploy/                 # deploy.sh, Caddyfile, systemd unit, backup script
+deploy/                 # deploy.sh, Caddyfile, Dockerfile, docker-compose.yml, backup script
 docs/                   # extra notes, decisions (ADRs)
 ```
 
