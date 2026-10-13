@@ -1,10 +1,20 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { tr } from '@/content/tr';
+import { jsonResponse } from '@/test-fixtures';
 import { WelcomePage } from './welcome-page';
 
+/** Fake value for tests; the real one is set by staff in the admin panel. */
+const WIFI_PASSWORD = 'ornek-sifre-123';
+const stubSettings = (body: unknown) =>
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(body)));
+
+beforeEach(() => stubSettings({ wifiPassword: WIFI_PASSWORD }));
+afterEach(() => vi.unstubAllGlobals());
+
+const t = tr.welcome;
 const renderPage = () =>
   render(
     <MemoryRouter>
@@ -13,53 +23,71 @@ const renderPage = () =>
   );
 
 describe('WelcomePage', () => {
-  it('greets in Turkish with the logo and a single h1', () => {
+  it('greets with the heading and subtitle from the mock-up', () => {
     renderPage();
-    expect(screen.getByRole('heading', { level: 1, name: tr.welcome.title })).toBeInTheDocument();
-    expect(screen.getByText(tr.welcome.subtitle)).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: tr.brand.name })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: t.title })).toBeInTheDocument();
+    expect(screen.getByText(t.subtitle)).toBeInTheDocument();
+    expect(screen.getByText(t.topBar.qrTitle)).toBeInTheDocument();
   });
 
-  it('shows all three sections as links, in a labelled navigation', () => {
+  it('has no table check-in or call-the-waiter UI', () => {
     renderPage();
-    const nav = screen.getByRole('navigation', { name: tr.welcome.sectionsNav });
+    expect(screen.queryByText(/masa/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/servis çağır/i)).not.toBeInTheDocument();
+  });
+
+  it('shows two photo cards (menu, campaigns), each named by title and description', () => {
+    renderPage();
+    const nav = screen.getByRole('navigation', { name: t.sectionsNav });
     const links = within(nav).getAllByRole('link');
-    expect(links.map((a) => a.getAttribute('href'))).toEqual([
-      '/menu',
-      '/etkinlikler',
-      '/kampanyalar',
-    ]);
-  });
-
-  it('gives each card an accessible name from its title and description', () => {
-    renderPage();
-    const { menu, activities, campaigns } = tr.welcome.cards;
-    for (const card of [menu, activities, campaigns]) {
-      const link = screen.getByRole('link', { name: new RegExp(card.title) });
-      expect(link).toHaveTextContent(card.description);
+    expect(links.map((a) => a.getAttribute('href'))).toEqual(['/menu', '/kampanyalar']);
+    for (const card of Object.values(t.cards)) {
+      const link = screen.getByRole('link', { name: card.title });
+      expect(link).toHaveAccessibleDescription(card.description);
     }
   });
 
-  it('has a heading per card and keeps decorative icons out of the accessibility tree', () => {
-    const { container } = renderPage();
-    expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(3);
-    expect(container.querySelectorAll('a [aria-hidden="true"]').length).toBeGreaterThanOrEqual(6);
+  it('shows the sticker logo named after the cafe', () => {
+    renderPage();
+    expect(screen.getByRole('img', { name: tr.brand.name })).toHaveAttribute(
+      'src',
+      '/brand/faralyah-sticker.webp',
+    );
   });
 
-  it('is fully keyboard operable, in reading order', async () => {
+  it('shows the real photos on the two cards', () => {
+    const { container } = renderPage();
+    const sources = [...container.querySelectorAll('nav img')].map((i) => i.getAttribute('src'));
+    expect(sources).toEqual(['/cofee-table.jpg', '/children-workshops.jpg']);
+    for (const img of container.querySelectorAll('nav img')) expect(img).toHaveAttribute('alt', '');
+  });
+
+  it('is operable by keyboard in reading order', async () => {
     const user = userEvent.setup();
     renderPage();
+    await screen.findByRole('button', { name: t.wifi.copy });
     await user.tab();
-    expect(
-      screen.getByRole('link', { name: new RegExp(tr.welcome.cards.menu.title) }),
-    ).toHaveFocus();
+    expect(screen.getByRole('button', { name: t.wifi.copy })).toHaveFocus();
     await user.tab();
-    expect(
-      screen.getByRole('link', { name: new RegExp(tr.welcome.cards.activities.title) }),
-    ).toHaveFocus();
+    expect(screen.getByRole('link', { name: t.cards.menu.title })).toHaveFocus();
     await user.tab();
-    expect(
-      screen.getByRole('link', { name: new RegExp(tr.welcome.cards.campaigns.title) }),
-    ).toHaveFocus();
+    expect(screen.getByRole('link', { name: t.cards.campaigns.title })).toHaveFocus();
+  });
+
+  it('copies the Wi-Fi password and announces it', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    expect(await screen.findByText(WIFI_PASSWORD)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: t.wifi.copy }));
+    expect(await navigator.clipboard.readText()).toBe(WIFI_PASSWORD);
+    expect(screen.getByRole('status')).toHaveTextContent(t.wifi.copied);
+  });
+
+  it('hides the Wi-Fi card when no password is set', async () => {
+    stubSettings({});
+    renderPage();
+    expect(await screen.findByRole('heading', { level: 1 })).toBeInTheDocument();
+    await vi.waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/settings', expect.anything()));
+    expect(screen.queryByRole('button', { name: t.wifi.copy })).not.toBeInTheDocument();
   });
 });

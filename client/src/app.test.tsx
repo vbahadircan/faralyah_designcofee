@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { App } from './app';
 import { tr } from './content/tr';
-import { jsonResponse, sampleMenu } from './test-fixtures';
+import { jsonResponse, sampleCampaigns, sampleMenu } from './test-fixtures';
 
 function renderAt(path: string) {
   return render(
@@ -23,7 +23,11 @@ describe('App', () => {
   });
 
   it('navigates from the welcome page to the menu and back home', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(sampleMenu)));
+    // The welcome page loads the settings, the menu page the menu: answer each by URL.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => jsonResponse(url === '/api/menu' ? sampleMenu : {})),
+    );
     const user = userEvent.setup();
     renderAt('/');
     await user.click(screen.getByRole('link', { name: new RegExp(tr.welcome.cards.menu.title) }));
@@ -35,18 +39,13 @@ describe('App', () => {
     expect(screen.getByRole('heading', { level: 1, name: tr.welcome.title })).toBeInTheDocument();
   });
 
-  it('shows a coming-soon page for activities', () => {
-    renderAt('/etkinlikler');
-    expect(screen.getByRole('heading', { name: tr.activities.title })).toBeInTheDocument();
-    expect(screen.getByText(tr.comingSoon)).toBeInTheDocument();
-  });
-
-  it('shows the offers page on both the combined and the campaigns routes', () => {
-    const { unmount } = renderAt('/etkinlikler-kampanyalar');
-    expect(screen.getByRole('heading', { level: 1, name: tr.offers.title })).toBeInTheDocument();
-    unmount();
+  it('shows the campaigns page from the API', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(sampleCampaigns)));
     renderAt('/kampanyalar');
-    expect(screen.getByRole('heading', { level: 1, name: tr.offers.title })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: tr.campaigns.title })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('article', { name: 'Tuval Boyama + Kahve' }),
+    ).toBeInTheDocument();
   });
 
   it('renders a Turkish not-found page with a way back', () => {

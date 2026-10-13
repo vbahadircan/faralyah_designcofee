@@ -79,7 +79,9 @@ Rules:
 - Clear space around the logo = height of the letter "F" on all sides.
 - Minimum width: wordmark 96 px, lockup 160 px (the subtitle is unreadable below that). Use the wordmark alone when smaller.
 - Never stretch, rotate, outline, add shadows, or place on busy photos.
-- The sticker's gold ring, disco balls and satin are print/marketing decoration, not part of the app logo.
+- The sticker's gold ring, disco balls and satin are print/marketing decoration, not part of the app logo — with one exception below.
+
+**Sticker logo (owner decision, 2026-10-12):** the round sticker is shown as the logo on the QR landing page (`/`) and the admin login (`/admin/giris`), as `public/brand/faralyah-sticker.webp` through the `StickerLogo` component. It is a circle cropped from a phone photo of the printed sticker, so it is a stopgap: **TODO(owner)** send the sticker's print/design file and replace the WebP with a clean export (same name, square, transparent outside the circle). Everywhere else the SVG rules above still apply.
 
 
 ## 7. Color (summary — full usage in DESIGN.md)

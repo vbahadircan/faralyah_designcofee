@@ -29,6 +29,25 @@ describe('MenuItemRow', () => {
     expect(screen.getByText('Sade, orta veya şekerli')).toBeInTheDocument();
   });
 
+  it('labels both prices of a two-size item for screen readers', () => {
+    renderRow({ id: '1', name: 'Latte', priceKurus: 13500, priceLargeKurus: 15500 });
+    const row = screen.getByRole('listitem');
+    expect(row).toHaveTextContent('Küçük boy 135 ₺');
+    expect(row).toHaveTextContent('Büyük boy 155 ₺');
+  });
+
+  it('shows a dash for a missing large size in a two-size section', () => {
+    render(
+      <ul>
+        <MenuItemRow item={{ id: '1', name: 'Espresso', priceKurus: 8500 }} sized />
+      </ul>,
+    );
+    const row = screen.getByRole('listitem');
+    expect(row).toHaveTextContent('–');
+    expect(row).toHaveTextContent('Küçük boy 85 ₺');
+    expect(row).toHaveTextContent('Büyük boy yok');
+  });
+
   it('hides the decorative leader from assistive tech', () => {
     const { container } = renderRow({ id: '1', name: 'Latte', priceKurus: 13500 });
     expect(container.querySelector('[aria-hidden="true"]')).not.toBeNull();

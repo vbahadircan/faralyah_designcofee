@@ -13,6 +13,8 @@ export const seedFileSchema = z.object({
           z.object({
             name: z.string().trim().min(1).max(MENU_LIMITS.nameMax),
             price: z.number().min(0).max(100_000),
+            /** Optional large-size price; `price` is then the small size. */
+            priceLarge: z.number().min(0).max(100_000).optional(),
             description: z.string().trim().max(MENU_LIMITS.descriptionMax).optional(),
           }),
         ),
@@ -32,6 +34,9 @@ export async function seedMenu(data: SeedFile): Promise<{ categories: number; it
       await MenuItem.create({
         name: item.name,
         priceKurus: Math.round(item.price * 100),
+        ...(item.priceLarge !== undefined
+          ? { priceLargeKurus: Math.round(item.priceLarge * 100) }
+          : {}),
         description: item.description,
         categoryId: created._id,
         order: itemIndex,

@@ -3,7 +3,7 @@ import { tr } from '@/content/tr';
 
 /** Brand tile and name on the left, "QR MENÜ / Karşılama" and a round brand mark on the right. */
 export function TopBar() {
-  const t = tr.welcomeAlt.topBar;
+  const t = tr.welcome.topBar;
   return (
     <header className="flex items-center justify-between rounded-xl border border-rule bg-background px-3 py-2 shadow-card">
       <div className="flex items-center gap-3">

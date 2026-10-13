@@ -119,46 +119,40 @@ Türk Kahvesi ............................ 90 ₺
 - Format `120 ₺` (non-breaking space), Turkish number formatting via `Intl.NumberFormat('tr-TR')`. Whole prices have no decimals; otherwise `42,50 ₺`.
 - Burgundy, semibold, tabular numerals, right-aligned, `white-space: nowrap`.
 - A price is never color-only information: it is always text.
-- Variant "from" for sized drinks **(proposed, only if needed)**: `S 90 ₺ · L 110 ₺` as two tags.
+- Two sizes (owner decision, 2026-10-12): an item may have an optional large-size price (`priceLargeKurus`; `priceKurus` is then the small size). In a category where any item has one, decorative column heads "KÜÇÜK / BÜYÜK" (`aria-hidden`) sit under the heading and each row shows two price tags in fixed-width columns, each with a visually hidden "Küçük boy" / "Büyük boy" label. Single-price items in that category show their price in the small column and a muted dash "–" (`aria-hidden`, read as "Büyük boy yok") in the large column (owner decision, 2026-10-12). Admin edits it as an optional "Büyük boy (₺)" field; empty means one size.
 
 ### 4.5 Event / workshop card (the only real card)
 
 - Paper surface, 1 px `--color-rule` border, `--radius-md`, optional photo at top (4:3), title in display font, meta line (date · age range · price), type tag (Resim, Seramik, Puzzle, Kutu oyunu), one primary action ("Detaylar" / "Kayıt için yaz").
 - This is where playfulness lives: type tag may use burgundy fill and a small hand-drawn icon.
 
-### 4.5a Landing card (home entry)
+### 4.5a Landing page (`/`)
 
-The QR landing page (`/`) shows **three** full-width cards — Menü, Atölyeler & Etkinlikler, Kampanyalar — that must **all be visible without scrolling** on a 360 × 568 phone and up.
+Built from the cafe's inspiration mock-up; chosen by the owner over the earlier three-card landing (2026-10-12).
 
-- The page fills `100dvh`; cards share the leftover height with a floor of 104 px and a cap of 144 px. Titles stay on one line at 360 px (`text-lg` on mobile, `text-xl` from `sm`).
-- Anatomy: icon tile (44 px) · title (display font) + 1–2 line description · arrow in a circle. The whole card is one link (`<a>`); title and description form its accessible name; icons are `aria-hidden`.
-- Tones: `burgundy` and `brown` (paper text, gold icon/arrow — gold is allowed on dark) and `paper` (burgundy border and text). A decorative inner gold hairline sits 4 px inside every card (it is a pseudo-element, never the focus ring).
-- States: hover (pointer only) swaps burgundy ↔ brown, paper → tint; focus-visible uses the global 2 px ring outside the card.
-- No photos for now (none exist yet). If photos are added later they must not push the three cards off one screen.
-- Copy states only facts from PRODUCT.md; never invent counts or promotions.
-
-### 4.5b Landing variant B — `/onizleme` (under owner review)
-
-A second landing page built from the cafe's inspiration mock-up, shown next to the simpler landing (§4.5a) so the owners can choose. Whichever is not chosen gets deleted.
-
-- Structure: top bar (brand tile, name, "QR MENÜ / Karşılama", round brand mark) → eyebrow, heading, subtitle → Wi-Fi password card with copy button → three **photo cards**: badge (top-left), gold eyebrow, serif title and arrow over the image, description and chips below. Dotted paper background (`bg-dots`).
-- Uses extra tokens that exist only for this variant: `--radius-lg` (12 px), `--radius-xl` (16 px), `--shadow-card`. If variant B is dropped, remove them.
+- Structure: top bar (brand tile, name, "QR MENÜ / Karşılama", round brand mark) → sticker logo (80 px, 112 px on screens ≥ 700 px high; see brand.md §6) → eyebrow, heading, subtitle → Wi-Fi password card with copy button → two **photo cards**, Menü and Kampanyalar: badge (top-left), gold eyebrow, serif title and arrow over the image, description and chips below. Dotted paper background (`bg-dots`).
+- Uses `--radius-lg` (12 px), `--radius-xl` (16 px) and `--shadow-card`, shared with the campaign card.
 - Photos: each card has an optional `photo` path (under `/public`). Until real photos exist a brand-color gradient with a large faint icon is shown. A brown gradient overlay keeps the gold and white text readable over any photo. Photos need Turkish-free `alt=""` (they are decorative) and must follow the brand.md photo rules (parental consent for kids).
 - Everything must stay on **one screen** on phones from 360 × 568. Short screens drop content in this order: badge (< 700 px high), chips (< 760 px high), Wi-Fi card (< 620 px high).
 - Left out on purpose: table verification ("MASA 04") and "Servis Çağır" — not in v1.
-- `WIFI_PASSWORD` is the mock-up's demo value (`TODO(owner)`); replace with the real one or remove the card.
+- The Wi-Fi password is edited by staff in the admin panel (Ayarlar, `/admin/ayarlar`) and loaded from `GET /api/settings`. With no password set the card is not shown (owner decision, 2026-10-12).
 - Gold appears as text only on dark overlays; on the paper surface it is decoration only (§2.1).
 
-### 4.5c Package card (Etkinlikler / Kampanyalar page)
+### 4.5b Campaign card (`/kampanyalar`)
 
-Used on `/etkinlikler-kampanyalar` (also served at `/kampanyalar`). One card per campaign package, built from the cafe's mock-up.
+One card per published campaign, in the order staff set.
 
-- Anatomy: tags (soft = tint pill with burgundy text; dark = burgundy pill with paper text) · price block top-right (optional label such as "AVANTAJLI", struck-through old price in a `<del>`, current price in display font) · title (`h2`) · description · fact row with small icons (e.g. "75-90 Dakika") · one button.
-- Prices are never color-only: the old and new prices carry visually hidden labels ("Eski fiyat", "Kampanya fiyatı").
-- Buttons: `primary` "Paketi Seç" or tint-filled ghost "İncele". Online registration is out of scope for v1, so the button toggles an inline note (`aria-expanded` / `aria-controls`) telling people to ask the staff; it must never look like a checkout.
-- Surface: `bg-background`, `--radius-xl`, `--shadow-card`, 1 px rule border (same family as landing variant B).
-- Left out on purpose: "Masaya Özel" (table-specific).
-- Package names, prices and descriptions are **sample data** (`client/src/content/sample-packages.ts`) until the campaigns API exists.
+- Anatomy: photo on top (4:3, `object-cover`, decorative `alt=""`; brand gradient with a faint icon when there is no photo) · title (`h2`) and price block side by side · optional description · one secondary button "Bilgi al".
+- The price carries a visually hidden label ("Kampanya fiyatı"); never color-only.
+- Online booking is out of scope for v1, so the button toggles an inline note (`aria-expanded` / `aria-controls`) telling people to ask the staff; it must never look like a checkout.
+- Surface: `bg-background`, `--radius-xl`, `--shadow-card`, 1 px rule border.
+
+### 4.5c Admin panel (`/admin`)
+
+- Login at `/admin/giris`; every other admin page checks the session first and sends visitors without one to the login page.
+- Layout: max width 960 px, header (title, "Siteyi gör", "Çıkış yap"), pill nav (Menü, Kampanyalar), a sticky live region (`role="status"`) for "Kaydedildi." and errors.
+- Editing is inline: each row is a `<fieldset>` named by the item, with labelled 16 px inputs, "Menüde göster" / "Yayında" checkboxes, a Kaydet button, and up / down / delete icon buttons whose `aria-label` names the item. Delete asks for confirmation.
+- Prices are typed as Turkish text ("120", "42,50") and parsed with `parsePriceInput`; an unreadable price shows an error under the field and nothing is sent.
 
 ### 4.6 shadcn primitives
 
