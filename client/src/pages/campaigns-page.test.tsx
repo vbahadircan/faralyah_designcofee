@@ -39,6 +39,27 @@ describe('CampaignsPage', () => {
     expect(note).toBeVisible();
   });
 
+  it('has a jump strip with a chip per campaign (name and price) pointing at its card', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(sampleCampaigns)));
+    const user = userEvent.setup();
+    renderPage();
+    const nav = await screen.findByRole('navigation', { name: tr.campaigns.title });
+    const chip = within(nav).getByRole('link', { name: /Tuval Boyama \+ Kahve/ });
+    expect(chip).toHaveTextContent(/350\s₺/);
+    expect(chip).toHaveAttribute('href', '#kampanya-k2');
+    await user.click(chip);
+    expect(chip).toHaveAttribute('aria-current', 'true');
+    expect(document.getElementById('kampanya-k2')).toHaveClass('card-flash');
+  });
+
+  it('shows a small icon tile instead of a banner when a campaign has no photo', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(sampleCampaigns)));
+    renderPage();
+    const plain = await screen.findByRole('article', { name: 'Tuval Boyama + Kahve' });
+    expect(plain.querySelector('[class*="aspect-"]')).toBeNull();
+    expect(plain.querySelector('svg')).not.toBeNull();
+  });
+
   it('shows the empty state and the error state with retry', async () => {
     const fetchMock = vi
       .fn()

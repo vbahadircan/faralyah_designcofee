@@ -1,4 +1,5 @@
 import { CampaignCard } from '@/components/campaigns/campaign-card';
+import { CampaignJumpStrip } from '@/components/campaigns/campaign-jump-strip';
 import { Button } from '@/components/ui/button';
 import { tr } from '@/content/tr';
 import { useFetch } from '@/hooks/use-fetch';
@@ -40,13 +41,18 @@ export function CampaignsPage() {
         <p className="py-8">{tr.campaigns.empty}</p>
       ) : null}
       {state.status === 'ready' && state.data.campaigns.length > 0 ? (
-        <ul className="mt-5 flex flex-col gap-4">
-          {state.data.campaigns.map((campaign) => (
-            <li key={campaign.id}>
-              <CampaignCard campaign={campaign} />
-            </li>
-          ))}
-        </ul>
+        <>
+          {state.data.campaigns.length > 1 ? (
+            <CampaignJumpStrip campaigns={state.data.campaigns} />
+          ) : null}
+          <ul className="mt-5 flex flex-col gap-4">
+            {state.data.campaigns.map((campaign) => (
+              <li key={campaign.id}>
+                <CampaignCard campaign={campaign} />
+              </li>
+            ))}
+          </ul>
+        </>
       ) : null}
     </>
   );
