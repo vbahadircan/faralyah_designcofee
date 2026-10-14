@@ -45,5 +45,10 @@ export default tseslint.config(
     plugins: { 'react-hooks': reactHooks, 'jsx-a11y': jsxA11y },
     rules: { ...reactHooks.configs.recommended.rules, ...jsxA11y.flatConfigs.recommended.rules },
   },
+  {
+    // mongosh init script run by the MongoDB container, not Node: `db` is a mongosh global.
+    files: ['deploy/mongo-init.js'],
+    languageOptions: { globals: { ...globals.node, db: 'readonly' } },
+  },
   prettier,
 );

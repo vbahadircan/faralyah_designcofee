@@ -7,6 +7,58 @@
   background-size: 14px 14px;
 }
 
+/* Instant, interruptible press feedback (docs/apple-design-review.md #1). Transform-free for reduced motion. */
+@utility press {
+  transition-property: color, background-color, border-color, scale;
+  transition-duration: 100ms;
+  transition-timing-function: ease-out;
+  @media (prefers-reduced-motion: no-preference) {
+    &:active:not(:disabled, [aria-disabled='true']) {
+      scale: 0.97;
+    }
+  }
+}
+
+/* Fades a horizontally scrolling row at both edges instead of a hard clip; pair with px-4. */
+@utility scroll-fade-x {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    var(--color-brown) 1rem,
+    var(--color-brown) calc(100% - 1rem),
+    transparent
+  );
+}
+
+/* Brief tint on a section heading after its tab is tapped, so the tap has a visible effect. */
+@keyframes heading-flash {
+  from {
+    background-color: var(--color-tint);
+  }
+  to {
+    background-color: transparent;
+  }
+}
+@utility heading-flash {
+  animation: heading-flash 700ms ease-out;
+}
+
+/* Solid fallback for sticky glass surfaces when the user asks for less transparency. */
+@custom-variant reduce-transparency (@media (prefers-reduced-transparency: reduce));
+
+/* Brief tint on a campaign card after its jump chip is tapped, so the tap has a visible effect. */
+@keyframes card-flash {
+  from {
+    background-color: var(--color-tint);
+  }
+  to {
+    background-color: var(--color-background);
+  }
+}
+@utility card-flash {
+  animation: card-flash 700ms ease-out;
+}
+
 @layer base {
   html {
     background-color: var(--color-paper);
@@ -23,6 +75,10 @@
   h3 {
     font-family: var(--font-display);
     color: var(--color-burgundy);
+  }
+  /* Large display type reads better slightly tighter (docs/apple-design-review.md #5). */
+  h1 {
+    letter-spacing: -0.01em;
   }
   /* Visible focus everywhere (DESIGN.md §4). Never remove. */
   :focus-visible {

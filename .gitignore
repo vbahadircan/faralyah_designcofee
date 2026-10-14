@@ -39,3 +39,5 @@ client/dist/
 server/dist/
 shared/dist/
 *.tsbuildinfo
+
+public/brand/qr

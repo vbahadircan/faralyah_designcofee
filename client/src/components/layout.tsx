@@ -15,7 +15,7 @@ export function Layout() {
       <header className="mx-auto grid max-w-[640px] grid-cols-[1fr_auto_1fr] items-center px-4 pt-3 pb-4">
         <Link
           to="/"
-          className="inline-flex min-h-11 items-center gap-1 justify-self-start rounded-sm text-sm font-semibold whitespace-nowrap text-burgundy"
+          className="press inline-flex min-h-11 items-center gap-1 justify-self-start rounded-sm text-sm font-semibold whitespace-nowrap text-burgundy"
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
           {tr.nav.home}

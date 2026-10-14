@@ -68,7 +68,7 @@ Turkish casing: use `lang="tr"` on `<html>` and `text-transform: uppercase` only
 - Single column on the menu at every breakpoint; on desktop it is centered, not stretched.
 - Breakpoints: `sm` 480 · `md` 768 · `lg` 1024. Write base styles first, enhance upward with `min-width` queries.
 - Touch targets ≥ **44 × 44 px**.
-- Category tabs are **sticky** under the page header and horizontally scrollable with a visible overflow hint; the active tab scrolls into view.
+- Category tabs are **sticky** under the page header and horizontally scrollable with a visible overflow hint; the active tab scrolls into view. The active pill slides between tabs, the target heading flashes briefly on tap, the bar is translucent (`backdrop-blur`, solid under `prefers-reduced-transparency`) and fades at both scroll edges.
 - Page structure: header (wordmark) → category tabs → sections → footer (allergy note, contact).
 - Don't use hover as the only way to reveal anything.
 
@@ -80,7 +80,7 @@ Global state rules:
 - **Default** — as specced.
 - **Hover** (pointer only) — background `--color-tint`; no layout shift.
 - **Focus-visible** — 2 px `--focus-ring` outline, 2 px offset, never removed.
-- **Active/pressed** — slightly darker/`--color-tint` + 1 px translate is NOT used; use color only.
+- **Active/pressed** — instant `press` utility: `scale: 0.97` over 100 ms (only under `prefers-reduced-motion: no-preference`). No translate. Decision from `docs/apple-design-review.md`; supersedes the earlier "color only" rule.
 - **Disabled** — 40% opacity text, `--color-tint` surface, `aria-disabled`, not focusable if using a native `disabled`.
 - **Loading** — keep size stable; show a spinner or skeleton; set `aria-busy="true"`; disable repeated activation.
 
@@ -142,9 +142,11 @@ Built from the cafe's inspiration mock-up; chosen by the owner over the earlier 
 
 One card per published campaign, in the order staff set.
 
-- Anatomy: photo on top (4:3, `object-cover`, decorative `alt=""`; brand gradient with a faint icon when there is no photo) · title (`h2`) and price block side by side · optional description · one secondary button "Bilgi al".
+- Anatomy: photo on top (4:3, `object-cover`, decorative `alt=""`) · title (`h2`) and price block side by side · optional description · one secondary button "Bilgi al". Without a photo there is no banner: a 48 px brand-gradient tile (`aria-hidden`) with a lucide icon sits beside the title. The icon comes from keywords in the title (figür, taşlı, tuval, çocuk; `lib/campaign-icon.ts`), falling back to a palette icon; no new colors.
 - The price carries a visually hidden label ("Kampanya fiyatı"); never color-only.
 - Online booking is out of scope for v1, so the button toggles an inline note (`aria-expanded` / `aria-controls`) telling people to ask the staff; it must never look like a checkout.
+- The note reveals with a height + opacity transition (300 ms, `grid-template-rows` 0fr → 1fr); collapsed, it is `visibility: hidden`, so it is out of the tab order and accessibility tree. Under `prefers-reduced-motion` the global rule makes it instant.
+- With two or more campaigns a sticky jump strip sits above the list (same scroll-spy as §4.3, shared `useScrollSpy`): one pill chip per campaign with name and price, min height 44 px, a burgundy pill that slides to the active chip, horizontal scroll instead of truncation. Tapping a chip scrolls to the card (`scroll-mt-20`) and flashes it with a short tint (`card-flash`).
 - Surface: `bg-background`, `--radius-xl`, `--shadow-card`, 1 px rule border.
 
 ### 4.5c Admin panel (`/admin`)
