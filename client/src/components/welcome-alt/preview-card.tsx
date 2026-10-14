@@ -46,7 +46,7 @@ export function PreviewCard({
       to={to}
       aria-labelledby={titleId}
       aria-describedby={descriptionId}
-      className="flex w-full flex-col overflow-hidden rounded-xl border border-rule bg-background shadow-card"
+      className="press flex w-full flex-col overflow-hidden rounded-xl border border-rule bg-background shadow-card"
     >
       <span className="relative block min-h-20 flex-1 overflow-hidden">
         {photo ? (

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { PublicCategory } from '@faralyah/shared';
 import { tr } from '@/content/tr';
 import { cn } from '@/lib/utils';
@@ -7,6 +7,15 @@ import { categorySectionId } from './category-section';
 /** Just below the sticky bar (sections use scroll-mt-20 = 80 px). */
 const SPY_OFFSET_PX = 100;
 const CLICK_LOCK_MS = 900;
+
+/** Restarts a short tint on the target heading so a tap on an already visible section still reads. */
+function flashHeading(categoryId: string) {
+  const heading = document.getElementById(`${categorySectionId(categoryId)}-baslik`);
+  if (!heading) return;
+  heading.classList.remove('heading-flash');
+  void heading.offsetWidth; // reflow so the animation restarts on repeat taps
+  heading.classList.add('heading-flash');
+}
 
 type Props = { categories: Pick<PublicCategory, 'id' | 'name'>[] };
 
@@ -52,6 +61,19 @@ export function CategoryTabs({ categories }: Props) {
     };
   }, [categories]);
 
+  // Sliding pill behind the active tab; re-measured when the tab or the bar width changes.
+  const list = useRef<HTMLUListElement>(null);
+  const [pill, setPill] = useState<{ left: number; width: number }>();
+  useLayoutEffect(() => {
+    const measure = () => {
+      const link = activeId ? links.current.get(activeId) : undefined;
+      if (link) setPill({ left: link.offsetLeft, width: link.offsetWidth });
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [activeId, categories]);
+
   useEffect(() => {
     const link = activeId ? links.current.get(activeId) : undefined;
     if (link && typeof link.scrollIntoView === 'function') {
@@ -62,9 +84,19 @@ export function CategoryTabs({ categories }: Props) {
   return (
     <nav
       aria-label={tr.menu.categoriesNav}
-      className="sticky top-0 z-10 -mx-4 border-b border-rule bg-background px-4 py-2"
+      className="sticky top-0 z-10 -mx-4 border-b border-rule bg-background/80 py-2 backdrop-blur-md reduce-transparency:bg-background reduce-transparency:backdrop-blur-none"
     >
-      <ul className="flex gap-2 overflow-x-auto [scrollbar-width:none]">
+      <ul
+        ref={list}
+        className="scroll-fade-x relative flex gap-2 overflow-x-auto px-4 [scrollbar-width:none]"
+      >
+        {pill ? (
+          <li
+            aria-hidden="true"
+            style={{ width: pill.width, transform: `translateX(${pill.left}px)` }}
+            className="pointer-events-none absolute top-0 bottom-0 left-0 rounded-pill bg-primary transition-[transform,width] duration-300 ease-out"
+          />
+        ) : null}
         {categories.map((category) => {
           const active = category.id === activeId;
           return (
@@ -79,11 +111,12 @@ export function CategoryTabs({ categories }: Props) {
                 onClick={() => {
                   lockUntil.current = performance.now() + CLICK_LOCK_MS;
                   setActiveId(category.id);
+                  flashHeading(category.id);
                 }}
                 className={cn(
-                  'inline-flex min-h-11 items-center rounded-pill px-4 font-semibold whitespace-nowrap transition-colors',
+                  'press relative inline-flex min-h-11 items-center rounded-pill px-4 font-semibold whitespace-nowrap',
                   active
-                    ? 'bg-primary text-primary-foreground'
+                    ? 'text-primary-foreground'
                     : 'text-foreground [@media(hover:hover)]:hover:bg-tint',
                 )}
               >

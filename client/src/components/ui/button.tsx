@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
  * States: hover (tint, pointer only), focus-visible (global ring), disabled, loading.
  */
 const buttonVariants = cva(
-  'inline-flex shrink-0 items-center justify-center gap-2 rounded-md font-semibold whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-40 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 [&_svg]:pointer-events-none [&_svg]:shrink-0',
+  'inline-flex shrink-0 items-center justify-center gap-2 rounded-md font-semibold whitespace-nowrap press disabled:cursor-not-allowed disabled:opacity-40 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 [&_svg]:pointer-events-none [&_svg]:shrink-0',
   {
     variants: {
       variant: {

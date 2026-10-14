@@ -68,7 +68,7 @@ Turkish casing: use `lang="tr"` on `<html>` and `text-transform: uppercase` only
 - Single column on the menu at every breakpoint; on desktop it is centered, not stretched.
 - Breakpoints: `sm` 480 · `md` 768 · `lg` 1024. Write base styles first, enhance upward with `min-width` queries.
 - Touch targets ≥ **44 × 44 px**.
-- Category tabs are **sticky** under the page header and horizontally scrollable with a visible overflow hint; the active tab scrolls into view.
+- Category tabs are **sticky** under the page header and horizontally scrollable with a visible overflow hint; the active tab scrolls into view. The active pill slides between tabs, the target heading flashes briefly on tap, the bar is translucent (`backdrop-blur`, solid under `prefers-reduced-transparency`) and fades at both scroll edges.
 - Page structure: header (wordmark) → category tabs → sections → footer (allergy note, contact).
 - Don't use hover as the only way to reveal anything.
 
@@ -80,7 +80,7 @@ Global state rules:
 - **Default** — as specced.
 - **Hover** (pointer only) — background `--color-tint`; no layout shift.
 - **Focus-visible** — 2 px `--focus-ring` outline, 2 px offset, never removed.
-- **Active/pressed** — slightly darker/`--color-tint` + 1 px translate is NOT used; use color only.
+- **Active/pressed** — instant `press` utility: `scale: 0.97` over 100 ms (only under `prefers-reduced-motion: no-preference`). No translate. Decision from `docs/apple-design-review.md`; supersedes the earlier "color only" rule.
 - **Disabled** — 40% opacity text, `--color-tint` surface, `aria-disabled`, not focusable if using a native `disabled`.
 - **Loading** — keep size stable; show a spinner or skeleton; set `aria-busy="true"`; disable repeated activation.
 

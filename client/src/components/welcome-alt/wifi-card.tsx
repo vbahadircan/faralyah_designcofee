@@ -38,7 +38,7 @@ export function WifiCard({ password }: { password: string }) {
         type="button"
         onClick={copy}
         aria-label={t.copy}
-        className="flex size-11 shrink-0 items-center justify-center rounded-md text-burgundy transition-colors [@media(hover:hover)]:hover:bg-tint"
+        className="flex size-11 shrink-0 items-center justify-center rounded-md text-burgundy press [@media(hover:hover)]:hover:bg-tint"
       >
         {copied ? (
           <Check className="size-5" aria-hidden="true" />
