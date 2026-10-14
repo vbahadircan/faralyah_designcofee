@@ -46,6 +46,19 @@
 /* Solid fallback for sticky glass surfaces when the user asks for less transparency. */
 @custom-variant reduce-transparency (@media (prefers-reduced-transparency: reduce));
 
+/* Brief tint on a campaign card after its jump chip is tapped, so the tap has a visible effect. */
+@keyframes card-flash {
+  from {
+    background-color: var(--color-tint);
+  }
+  to {
+    background-color: var(--color-background);
+  }
+}
+@utility card-flash {
+  animation: card-flash 700ms ease-out;
+}
+
 @layer base {
   html {
     background-color: var(--color-paper);

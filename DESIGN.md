@@ -142,9 +142,11 @@ Built from the cafe's inspiration mock-up; chosen by the owner over the earlier 
 
 One card per published campaign, in the order staff set.
 
-- Anatomy: photo on top (4:3, `object-cover`, decorative `alt=""`; brand gradient with a faint icon when there is no photo) · title (`h2`) and price block side by side · optional description · one secondary button "Bilgi al".
+- Anatomy: photo on top (4:3, `object-cover`, decorative `alt=""`) · title (`h2`) and price block side by side · optional description · one secondary button "Bilgi al". Without a photo there is no banner: a 48 px brand-gradient tile (`aria-hidden`) with a lucide icon sits beside the title. The icon comes from keywords in the title (figür, taşlı, tuval, çocuk; `lib/campaign-icon.ts`), falling back to a palette icon; no new colors.
 - The price carries a visually hidden label ("Kampanya fiyatı"); never color-only.
 - Online booking is out of scope for v1, so the button toggles an inline note (`aria-expanded` / `aria-controls`) telling people to ask the staff; it must never look like a checkout.
+- The note reveals with a height + opacity transition (300 ms, `grid-template-rows` 0fr → 1fr); collapsed, it is `visibility: hidden`, so it is out of the tab order and accessibility tree. Under `prefers-reduced-motion` the global rule makes it instant.
+- With two or more campaigns a sticky jump strip sits above the list (same scroll-spy as §4.3, shared `useScrollSpy`): one pill chip per campaign with name and price, min height 44 px, a burgundy pill that slides to the active chip, horizontal scroll instead of truncation. Tapping a chip scrolls to the card (`scroll-mt-20`) and flashes it with a short tint (`card-flash`).
 - Surface: `bg-background`, `--radius-xl`, `--shadow-card`, 1 px rule border.
 
 ### 4.5c Admin panel (`/admin`)
