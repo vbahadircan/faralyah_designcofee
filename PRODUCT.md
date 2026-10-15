@@ -26,7 +26,7 @@ The customer menu looks and reads like a **paper menu**: rows of item name + pri
 2. **Browse** — On `/menu`, category tabs (sticky) scroll to sections; the list reads top to bottom like paper.
 3. **View item** — Item row shows name and price, plus an optional one-line description. No separate item page.
 4. **Discover events & workshops** — A list of upcoming events and workshops (painting, ceramics, puzzle, board games) with date, age range, price, optional cover photo, and how to register. Past events are hidden automatically. **Not built yet** and not linked from the landing page.
-5. **Campaigns** — `/kampanyalar` lists published campaigns in staff order: photo, title, price, optional description, and an "ask the staff" note (no online booking).
+5. **Campaigns** — `/kampanyalar` lists published campaigns in staff order: photo, title, price, optional description. No buttons, no jump bar; people book with the staff (no online booking).
 
 The footer always carries one plain line: "Alerjiniz varsa lütfen personele söyleyin." There are no allergen filters or per-item allergen data in v1.
 

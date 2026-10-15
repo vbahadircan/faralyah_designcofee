@@ -46,7 +46,7 @@ export function PreviewCard({
       to={to}
       aria-labelledby={titleId}
       aria-describedby={descriptionId}
-      className="press flex w-full flex-col overflow-hidden rounded-xl border border-rule bg-background shadow-card"
+      className="group press flex w-full flex-col overflow-hidden rounded-xl border border-rule bg-background shadow-card"
     >
       <span className="relative block min-h-20 flex-1 overflow-hidden">
         {photo ? (
@@ -100,7 +100,7 @@ export function PreviewCard({
           </span>
           <span
             aria-hidden="true"
-            className="flex size-8 shrink-0 items-center justify-center rounded-pill border border-paper/40 bg-paper/20 text-paper"
+            className="flex size-8 shrink-0 items-center justify-center rounded-pill border border-paper/40 bg-paper/20 text-paper transition-[transform,background-color] duration-150 ease-out [@media(hover:hover)]:group-hover:translate-x-1 group-focus-visible:translate-x-1 group-hover:border-burgundy group-hover:bg-burgundy group-active:border-burgundy group-active:bg-burgundy"
           >
             <ArrowRight className="size-4" />
           </span>

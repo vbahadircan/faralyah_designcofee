@@ -192,6 +192,91 @@ describe('admin menu', () => {
     await agent.delete(`/api/admin/categories/${a._id}`).set('X-CSRF-Token', csrf).expect(409);
     await agent.delete(`/api/admin/categories/${b._id}`).set('X-CSRF-Token', csrf).expect(204);
   });
+
+  it('saves the whole menu in one request: creates, edits, reorders and deletes', async () => {
+    const { agent, csrf } = await login();
+    const put = (body: object) => agent.put('/api/admin/menu').set('X-CSRF-Token', csrf).send(body);
+
+    await put({
+      categories: [
+        {
+          name: 'Sıcak İçecekler',
+          active: true,
+          items: [
+            { name: 'Espresso', priceKurus: 8500, visible: true },
+            { name: 'Caffè Latte', priceKurus: 12500, priceLargeKurus: 14500, visible: true },
+          ],
+        },
+        { name: 'Tatlılar', active: true, items: [] },
+      ],
+    }).expect(204);
+
+    let admin = adminMenuSchema.parse((await agent.get('/api/admin/menu')).body);
+    expect(admin.categories.map((c) => c.name)).toEqual(['Sıcak İçecekler', 'Tatlılar']);
+    const [hot, sweets] = admin.categories;
+    expect(hot?.items.map((i) => i.name)).toEqual(['Espresso', 'Caffè Latte']);
+    expect(hot?.items[1]).toMatchObject({ priceKurus: 12500, priceLargeKurus: 14500 });
+
+    // Second save: reversed categories, latte hidden and its large size removed, sweets deleted,
+    // espresso moved to the end and its description set.
+    await put({
+      categories: [
+        {
+          id: hot?.id,
+          name: 'Sıcak',
+          active: true,
+          items: [
+            { id: hot?.items[1]?.id, name: 'Caffè Latte', priceKurus: 12500, visible: false },
+            {
+              id: hot?.items[0]?.id,
+              name: 'Espresso',
+              priceKurus: 8500,
+              description: 'Tek shot',
+              visible: true,
+            },
+          ],
+        },
+      ],
+    }).expect(204);
+
+    admin = adminMenuSchema.parse((await agent.get('/api/admin/menu')).body);
+    expect(admin.categories.map((c) => c.id)).toEqual([hot?.id]);
+    expect(admin.categories[0]?.name).toBe('Sıcak');
+    expect(admin.categories[0]?.items).toEqual([
+      { id: hot?.items[1]?.id, name: 'Caffè Latte', priceKurus: 12500, visible: false },
+      {
+        id: hot?.items[0]?.id,
+        name: 'Espresso',
+        priceKurus: 8500,
+        description: 'Tek shot',
+        visible: true,
+      },
+    ]);
+    expect(await Category.exists({ _id: sweets?.id })).toBeNull();
+  });
+
+  it('refuses a menu save that repeats an id', async () => {
+    const { agent, csrf } = await login();
+    const cat = await Category.create({ name: 'A', order: 0 });
+    const id = cat._id.toString();
+    await agent
+      .put('/api/admin/menu')
+      .set('X-CSRF-Token', csrf)
+      .send({
+        categories: [
+          { id, name: 'A', active: true, items: [] },
+          { id, name: 'B', active: true, items: [] },
+        ],
+      })
+      .expect(400);
+    expect(await Category.countDocuments()).toBe(1);
+  });
+
+  it('requires a session and the CSRF token for a menu save', async () => {
+    const { agent } = await login();
+    await agent.put('/api/admin/menu').send({ categories: [] }).expect(403);
+    await request(app).put('/api/admin/menu').send({ categories: [] }).expect(401);
+  });
 });
 
 describe('admin campaigns', () => {

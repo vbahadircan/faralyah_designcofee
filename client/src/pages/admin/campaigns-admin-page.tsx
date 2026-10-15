@@ -131,7 +131,7 @@ function CampaignEditor({
     >
       <div className="md:w-72 md:shrink-0">
         {campaign.imageUrl ? (
-          <img src={campaign.imageUrl} alt="" className="aspect-[4/3] w-full object-cover" />
+          <img src={campaign.imageUrl} alt="" className="block h-auto w-full" />
         ) : (
           <div className="flex aspect-[4/3] w-full flex-col items-center justify-center gap-2 bg-tint text-muted-foreground">
             <ImageOff className="size-8" aria-hidden="true" />
