@@ -18,6 +18,9 @@
   --color-tint: #eee8ea;
   --color-danger: #9b1c1c;
 
+  /* Width of the fade shown at a scrolling row's edge when more content is hidden there. */
+  --scroll-fade-edge: 1rem;
+
   /* Typography */
   --font-display: 'Fraunces Variable', Georgia, serif;
   --font-body: 'Nunito Sans Variable', system-ui, sans-serif;

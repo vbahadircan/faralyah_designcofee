@@ -1,30 +1,23 @@
 import type { PublicCampaign } from '@faralyah/shared';
-import { useId, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { useId } from 'react';
 import { PriceTag } from '@/components/ui/price-tag';
 import { tr } from '@/content/tr';
 import { campaignIcon } from '@/lib/campaign-icon';
-import { cn } from '@/lib/utils';
-
-/** Anchor id of a campaign card, targeted by the jump strip. */
-export const campaignCardId = (id: string) => `kampanya-${id}`;
 
 /**
- * One campaign: optional photo on top (4:3) or, without one, a small icon tile beside the title;
- * title, price, description. Online registration
- * is out of scope for v1, so the button only reveals a note sending people to the staff.
+ * One campaign: optional photo on top (full width on phones, beside the text from 640 px up),
+ * shown at its own proportions. Without a
+ * photo, a small icon tile sits beside the title. Then title, price and optional description.
+ * Bookings happen with the staff, so the card has no action of its own.
  */
 export function CampaignCard({ campaign }: { campaign: PublicCampaign }) {
   const titleId = useId();
-  const noteId = useId();
-  const [open, setOpen] = useState(false);
   const Icon = campaignIcon(campaign.title);
 
   return (
     <article
-      id={campaignCardId(campaign.id)}
       aria-labelledby={titleId}
-      className="scroll-mt-20 overflow-hidden rounded-xl border border-rule bg-background shadow-card"
+      className="overflow-hidden rounded-xl border border-rule bg-background shadow-card sm:flex"
     >
       {campaign.imageUrl ? (
         <img
@@ -32,10 +25,10 @@ export function CampaignCard({ campaign }: { campaign: PublicCampaign }) {
           alt=""
           loading="lazy"
           decoding="async"
-          className="aspect-[4/3] w-full object-cover"
+          className="block h-auto w-full sm:w-56 sm:shrink-0 sm:self-start"
         />
       ) : null}
-      <div className="p-4">
+      <div className="p-4 sm:min-w-0 sm:flex-1">
         <div className="flex items-start gap-3">
           {campaign.imageUrl ? null : (
             <div
@@ -56,27 +49,6 @@ export function CampaignCard({ campaign }: { campaign: PublicCampaign }) {
         {campaign.description ? (
           <p className="mt-2 text-sm text-muted-foreground">{campaign.description}</p>
         ) : null}
-        <Button
-          className="mt-4"
-          variant="secondary"
-          aria-expanded={open}
-          aria-controls={noteId}
-          onClick={() => setOpen((value) => !value)}
-        >
-          {tr.campaigns.ask}
-        </Button>
-        <div
-          id={noteId}
-          style={{ visibility: open ? 'visible' : 'hidden' }}
-          className={cn(
-            'grid transition-[grid-template-rows,opacity,visibility] duration-300 ease-out',
-            open ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
-          )}
-        >
-          <div className="overflow-hidden">
-            <p className="mt-3 rounded-md bg-tint p-3 text-sm">{tr.campaigns.note}</p>
-          </div>
-        </div>
       </div>
     </article>
   );

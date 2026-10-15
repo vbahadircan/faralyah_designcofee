@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import type { PublicCategory } from '@faralyah/shared';
 import { tr } from '@/content/tr';
 import { useScrollSpy } from '@/hooks/use-scroll-spy';
@@ -16,9 +16,20 @@ function flashHeading(categoryId: string) {
 
 type Props = { categories: Pick<PublicCategory, 'id' | 'name'>[] };
 
+/** Which edges of the tab row have tabs hidden past them, so only those edges fade. */
+type Edges = { start: boolean; end: boolean };
+
+function readEdges(row: HTMLElement): Edges {
+  return {
+    start: row.scrollLeft > 1,
+    end: row.scrollWidth - row.clientWidth - row.scrollLeft > 1,
+  };
+}
+
 /**
  * DESIGN.md §4.3. Sticky anchor nav: links jump to sections (works without JS for content);
- * the active tab follows scroll position and is kept in view.
+ * the active tab follows scroll position and is kept in view. The row scrolls sideways, tabs
+ * snap to the left edge, and an edge fades only while tabs are hidden past it.
  */
 export function CategoryTabs({ categories }: Props) {
   const { activeId, select } = useScrollSpy(categories, categorySectionId);
@@ -27,10 +38,17 @@ export function CategoryTabs({ categories }: Props) {
   // Sliding pill behind the active tab; re-measured when the tab or the bar width changes.
   const list = useRef<HTMLUListElement>(null);
   const [pill, setPill] = useState<{ left: number; width: number }>();
+  const [edges, setEdges] = useState<Edges>({ start: false, end: false });
   useLayoutEffect(() => {
     const measure = () => {
       const link = activeId ? links.current.get(activeId) : undefined;
       if (link) setPill({ left: link.offsetLeft, width: link.offsetWidth });
+      if (list.current) {
+        const next = readEdges(list.current);
+        setEdges((current) =>
+          current.start === next.start && current.end === next.end ? current : next,
+        );
+      }
     };
     measure();
     window.addEventListener('resize', measure);
@@ -40,9 +58,14 @@ export function CategoryTabs({ categories }: Props) {
   useEffect(() => {
     const link = activeId ? links.current.get(activeId) : undefined;
     if (link && typeof link.scrollIntoView === 'function') {
-      link.scrollIntoView({ inline: 'center', block: 'nearest' });
+      link.scrollIntoView({ inline: 'nearest', block: 'nearest' });
     }
   }, [activeId]);
+
+  const fade: CSSProperties = {
+    '--fade-start': edges.start ? 'var(--scroll-fade-edge)' : '0',
+    '--fade-end': edges.end ? 'var(--scroll-fade-edge)' : '0',
+  } as CSSProperties;
 
   return (
     <nav
@@ -51,7 +74,14 @@ export function CategoryTabs({ categories }: Props) {
     >
       <ul
         ref={list}
-        className="scroll-fade-x relative flex gap-2 overflow-x-auto px-4 [scrollbar-width:none]"
+        onScroll={(event) => {
+          const next = readEdges(event.currentTarget);
+          setEdges((current) =>
+            current.start === next.start && current.end === next.end ? current : next,
+          );
+        }}
+        style={fade}
+        className="scroll-fade-x relative flex snap-x snap-mandatory scroll-ps-4 gap-2 overflow-x-auto px-4 [scrollbar-width:none]"
       >
         {pill ? (
           <li
@@ -63,7 +93,7 @@ export function CategoryTabs({ categories }: Props) {
         {categories.map((category) => {
           const active = category.id === activeId;
           return (
-            <li key={category.id} className="shrink-0">
+            <li key={category.id} className="shrink-0 snap-start">
               <a
                 ref={(node) => {
                   if (node) links.current.set(category.id, node);

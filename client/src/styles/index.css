@@ -19,13 +19,19 @@
   }
 }
 
-/* Fades a horizontally scrolling row at both edges instead of a hard clip; pair with px-4. */
+/*
+ * Fades a horizontally scrolling row at its edges instead of a hard clip; pair with px-4.
+ * An edge fades only while there is more content past it: set --fade-start / --fade-end to
+ * var(--scroll-fade-edge) from the component's scroll state, and they stay 0 (no fade) otherwise.
+ */
 @utility scroll-fade-x {
+  --fade-start: 0;
+  --fade-end: 0;
   mask-image: linear-gradient(
     to right,
     transparent,
-    var(--color-brown) 1rem,
-    var(--color-brown) calc(100% - 1rem),
+    var(--color-brown) var(--fade-start),
+    var(--color-brown) calc(100% - var(--fade-end)),
     transparent
   );
 }
@@ -45,19 +51,6 @@
 
 /* Solid fallback for sticky glass surfaces when the user asks for less transparency. */
 @custom-variant reduce-transparency (@media (prefers-reduced-transparency: reduce));
-
-/* Brief tint on a campaign card after its jump chip is tapped, so the tap has a visible effect. */
-@keyframes card-flash {
-  from {
-    background-color: var(--color-tint);
-  }
-  to {
-    background-color: var(--color-background);
-  }
-}
-@utility card-flash {
-  animation: card-flash 700ms ease-out;
-}
 
 @layer base {
   html {

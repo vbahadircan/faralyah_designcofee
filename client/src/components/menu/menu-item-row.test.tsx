@@ -36,16 +36,17 @@ describe('MenuItemRow', () => {
     expect(row).toHaveTextContent('Büyük boy 155 ₺');
   });
 
-  it('shows a dash for a missing large size in a two-size section', () => {
+  it('shows a single price without a dash in a two-size section', () => {
     render(
       <ul>
-        <MenuItemRow item={{ id: '1', name: 'Espresso', priceKurus: 8500 }} sized />
+        <MenuItemRow item={{ id: '1', name: 'Doppio', priceKurus: 10000 }} sized />
       </ul>,
     );
     const row = screen.getByRole('listitem');
-    expect(row).toHaveTextContent('–');
-    expect(row).toHaveTextContent('Küçük boy 85 ₺');
-    expect(row).toHaveTextContent('Büyük boy yok');
+    expect(row).toHaveTextContent('100 ₺');
+    expect(row).not.toHaveTextContent('Küçük boy');
+    expect(row).not.toHaveTextContent('–');
+    expect(row).not.toHaveTextContent('Büyük boy');
   });
 
   it('hides the decorative leader from assistive tech', () => {

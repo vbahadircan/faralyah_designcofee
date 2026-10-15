@@ -1,388 +1,230 @@
-import {
-  adminMenuSchema,
-  MENU_LIMITS,
-  parsePriceInput,
-  type AdminCategory,
-  type AdminMenuItem,
-} from '@faralyah/shared';
-import { useCallback, useState, type FormEvent } from 'react';
+import { adminMenuSchema, MENU_LIMITS } from '@faralyah/shared';
+import { useEffect, useState, type FormEvent } from 'react';
+import { MenuCategoryBox } from '@/components/admin/menu-category-box';
+import { SortableList, SortableRow } from '@/components/admin/sortable-list';
 import { Button } from '@/components/ui/button';
-import { CheckboxField, TextField } from '@/components/ui/field';
+import { TextField } from '@/components/ui/field';
 import { tr } from '@/content/tr';
-import { useFetch } from '@/hooks/use-fetch';
 import { useAdmin } from './admin-context';
-import { priceToInput, RowActions, useAdminAction, type RunAction } from './admin-ui';
+import { errorText } from './admin-ui';
+import {
+  addCategory,
+  addItem,
+  draftFromMenu,
+  draftKey,
+  draftToSave,
+  newDraftId,
+  removeCategory,
+  removeItem,
+  reorderById,
+  reorderItems,
+  updateCategory,
+  updateItem,
+  type Draft,
+  type DraftCategory,
+} from './menu-draft';
 
 const t = tr.admin;
 
-/** The optional large-size field: empty means "no large size", otherwise a price in kuruş. */
-function parseLargePrice(input: string): number | null | 'invalid' {
-  if (!input.trim()) return null;
-  return parsePriceInput(input) ?? 'invalid';
-}
+/** The saved menu (`baseline`) and what the panel shows (`draft`). They differ until Kaydet. */
+type Menu = { baseline: Draft; draft: Draft };
 
+/**
+ * Menu editor. Categories start collapsed. Rows are reordered by dragging their grip handle.
+ * Every change lands in the draft; one Kaydet button at the bottom saves the whole menu, and the
+ * bar only shows while there is something to save.
+ */
 export function MenuAdminPage() {
-  const { call } = useAdmin();
-  const load = useCallback(
-    async (signal: AbortSignal) => adminMenuSchema.parse(await call('/menu', { signal })),
-    [call],
-  );
-  const { state, reload, refresh } = useFetch(load);
-  const run = useAdminAction(refresh);
+  const { call, notify } = useAdmin();
+  const [menu, setMenu] = useState<Menu | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [saving, setSaving] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
 
-  return (
-    <>
-      <h1 className="text-2xl font-bold">{t.menu.title}</h1>
-      <p className="mt-1 text-sm text-muted-foreground">{t.menu.intro}</p>
-      <p className="mt-1 text-sm text-muted-foreground">{t.menu.sizesHint}</p>
+  // Loads the saved menu on mount, on retry, and after every save (so new rows get real ids).
+  useEffect(() => {
+    const controller = new AbortController();
+    call('/menu', { signal: controller.signal })
+      .then((body) => {
+        const draft = draftFromMenu(adminMenuSchema.parse(body));
+        setMenu({ baseline: draft, draft });
+        setLoadFailed(false);
+      })
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) return;
+        console.error(error);
+        setLoadFailed(true);
+        notify({ kind: 'error', text: t.common.loadError });
+      });
+    return () => controller.abort();
+  }, [call, notify, attempt]);
 
-      {state.status === 'loading' ? (
-        <p aria-busy="true" className="py-6">
-          {t.common.loading}
-        </p>
-      ) : null}
-      {state.status === 'error' ? (
-        <div role="alert" className="py-6">
-          <p>{t.common.loadError}</p>
-          <Button variant="secondary" className="mt-4" onClick={reload}>
-            {t.common.retry}
-          </Button>
-        </div>
-      ) : null}
-      {state.status === 'ready' ? (
-        <>
-          {state.data.categories.length === 0 ? (
-            <p className="py-6">{t.menu.noCategories}</p>
-          ) : null}
-          {state.data.categories.map((category, index) => (
-            <CategoryBlock
-              key={category.id}
-              category={category}
-              first={index === 0}
-              last={index === state.data.categories.length - 1}
-              run={run}
-            />
-          ))}
-          <NewCategoryForm run={run} />
-        </>
-      ) : null}
-    </>
-  );
-}
-
-type Run = RunAction;
-
-function CategoryBlock({
-  category,
-  first,
-  last,
-  run,
-}: {
-  category: AdminCategory;
-  first: boolean;
-  last: boolean;
-  run: Run;
-}) {
-  const { call } = useAdmin();
-  const [name, setName] = useState(category.name);
-  const [active, setActive] = useState(category.active);
-
-  function save(event: FormEvent) {
-    event.preventDefault();
-    void run(
-      () => call(`/categories/${category.id}`, { method: 'PATCH', json: { name, active } }),
-      t.common.saved,
-    );
-  }
-
-  return (
-    <section
-      aria-label={category.name}
-      className="mt-6 rounded-md border border-rule bg-background p-4 shadow-sm"
-    >
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <h2 className="text-xl font-bold">{category.name}</h2>
-        <RowActions
-          name={category.name}
-          first={first}
-          last={last}
-          onMove={(direction) =>
-            void run(
-              () =>
-                call(`/categories/${category.id}/move`, { method: 'POST', json: { direction } }),
-              t.common.saved,
-            )
-          }
-          onDelete={() =>
-            void run(
-              () => call(`/categories/${category.id}`, { method: 'DELETE' }),
-              t.common.deleted,
-              {
-                category_not_empty: t.menu.categoryNotEmpty,
-              },
-            )
-          }
-          deleteDisabledReason={category.items.length > 0 ? t.menu.categoryNotEmpty : undefined}
-        />
-      </div>
-      <form onSubmit={save} className="mt-2 flex flex-wrap items-end gap-3">
-        <TextField
-          className="min-w-48 flex-1"
-          label={t.menu.categoryName}
-          value={name}
-          maxLength={MENU_LIMITS.nameMax}
-          required
-          onChange={(e) => setName(e.target.value)}
-        />
-        <CheckboxField
-          label={t.menu.categoryActive}
-          checked={active}
-          onChange={(e) => setActive(e.target.checked)}
-        />
-        <Button type="submit" variant="secondary" disabled={!name.trim()}>
-          {t.common.save}
+  if (menu === null) {
+    return loadFailed ? (
+      <div role="alert" className="py-6">
+        <p>{t.common.loadError}</p>
+        <Button variant="secondary" className="mt-4" onClick={() => setAttempt((n) => n + 1)}>
+          {t.common.retry}
         </Button>
-      </form>
-
-      {category.items.length === 0 ? (
-        <p className="mt-4 text-sm text-muted-foreground">{t.menu.emptyCategory}</p>
-      ) : (
-        <ul className="mt-4 flex flex-col divide-y divide-rule border-y border-rule">
-          {category.items.map((item, index) => (
-            <li key={item.id} className="py-3">
-              <ItemEditor
-                item={item}
-                first={index === 0}
-                last={index === category.items.length - 1}
-                run={run}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
-      <NewItemForm categoryId={category.id} categoryName={category.name} run={run} />
-    </section>
-  );
-}
-
-function ItemEditor({
-  item,
-  first,
-  last,
-  run,
-}: {
-  item: AdminMenuItem;
-  first: boolean;
-  last: boolean;
-  run: Run;
-}) {
-  const { call } = useAdmin();
-  const [name, setName] = useState(item.name);
-  const [price, setPrice] = useState(priceToInput(item.priceKurus));
-  const [priceLarge, setPriceLarge] = useState(
-    item.priceLargeKurus === undefined ? '' : priceToInput(item.priceLargeKurus),
-  );
-  const [description, setDescription] = useState(item.description ?? '');
-  const [visible, setVisible] = useState(item.visible);
-  const [priceError, setPriceError] = useState<string>();
-  const [priceLargeError, setPriceLargeError] = useState<string>();
-
-  function save(event: FormEvent) {
-    event.preventDefault();
-    const priceKurus = parsePriceInput(price);
-    const priceLargeKurus = parseLargePrice(priceLarge);
-    setPriceError(priceKurus === null ? t.common.invalidPrice : undefined);
-    setPriceLargeError(priceLargeKurus === 'invalid' ? t.common.invalidPrice : undefined);
-    if (priceKurus === null || priceLargeKurus === 'invalid') return;
-    void run(
-      () =>
-        call(`/items/${item.id}`, {
-          method: 'PATCH',
-          json: { name, priceKurus, priceLargeKurus, description, visible },
-        }),
-      t.common.saved,
+      </div>
+    ) : (
+      <p aria-busy="true" className="py-6">
+        {t.common.loading}
+      </p>
     );
   }
 
-  return (
-    <form onSubmit={save}>
-      <fieldset className="flex flex-col gap-3">
-        <legend className="sr-only">{item.name}</legend>
-        <div className="flex flex-wrap items-end gap-3">
-          <TextField
-            className="min-w-48 flex-[2]"
-            label={t.menu.itemName}
-            value={name}
-            maxLength={MENU_LIMITS.nameMax}
-            required
-            onChange={(e) => setName(e.target.value)}
-          />
-          <TextField
-            className="w-32"
-            label={t.menu.price}
-            value={price}
-            inputMode="decimal"
-            required
-            error={priceError}
-            onChange={(e) => setPrice(e.target.value)}
-          />
-          <TextField
-            className="w-32"
-            label={t.menu.priceLarge}
-            value={priceLarge}
-            inputMode="decimal"
-            error={priceLargeError}
-            onChange={(e) => setPriceLarge(e.target.value)}
-          />
-        </div>
-        <TextField
-          label={t.menu.description}
-          value={description}
-          maxLength={MENU_LIMITS.descriptionMax}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-3">
-            <CheckboxField
-              label={t.menu.visible}
-              checked={visible}
-              onChange={(e) => setVisible(e.target.checked)}
-            />
-            <Button type="submit" disabled={!name.trim()}>
-              {t.common.save}
-            </Button>
-          </div>
-          <RowActions
-            name={item.name}
-            first={first}
-            last={last}
-            onMove={(direction) =>
-              void run(
-                () => call(`/items/${item.id}/move`, { method: 'POST', json: { direction } }),
-                t.common.saved,
-              )
-            }
-            onDelete={() =>
-              void run(() => call(`/items/${item.id}`, { method: 'DELETE' }), t.common.deleted)
-            }
-          />
-        </div>
-      </fieldset>
-    </form>
-  );
-}
+  const { draft } = menu;
+  const dirty = draftKey(draft) !== draftKey(menu.baseline);
+  const editing = editingItemId !== null || renamingId !== null;
 
-function NewItemForm({
-  categoryId,
-  categoryName,
-  run,
-}: {
-  categoryId: string;
-  categoryName: string;
-  run: Run;
-}) {
-  const { call } = useAdmin();
-  const [name, setName] = useState('');
-  const [price, setPrice] = useState('');
-  const [priceLarge, setPriceLarge] = useState('');
-  const [priceError, setPriceError] = useState<string>();
-  const [priceLargeError, setPriceLargeError] = useState<string>();
+  function updateDraft(change: (current: Draft) => Draft) {
+    setMenu((current) => (current ? { ...current, draft: change(current.draft) } : current));
+  }
 
-  async function add(event: FormEvent) {
+  function toggleExpanded(id: string) {
+    setExpanded((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function addNewCategory(event: FormEvent) {
     event.preventDefault();
-    const priceKurus = parsePriceInput(price);
-    const priceLargeKurus = parseLargePrice(priceLarge);
-    setPriceError(priceKurus === null ? t.common.invalidPrice : undefined);
-    setPriceLargeError(priceLargeKurus === 'invalid' ? t.common.invalidPrice : undefined);
-    if (priceKurus === null || priceLargeKurus === 'invalid') return;
-    const ok = await run(
-      () =>
-        call('/items', {
-          method: 'POST',
-          json: {
-            name,
-            priceKurus,
-            categoryId,
-            ...(priceLargeKurus === null ? {} : { priceLargeKurus }),
-          },
-        }),
-      t.common.added,
-    );
-    if (ok) {
-      setName('');
-      setPrice('');
-      setPriceLarge('');
+    const name = newCategoryName.trim();
+    if (!name) return;
+    const id = newDraftId();
+    updateDraft((current) => addCategory(current, id, name));
+    setNewCategoryName('');
+  }
+
+  function deleteCategory(category: DraftCategory) {
+    if (!window.confirm(t.menu.confirmDeleteCategory(category.name, category.items.length))) {
+      return;
+    }
+    updateDraft((current) => removeCategory(current, category.id));
+    if (renamingId === category.id) setRenamingId(null);
+    if (category.items.some((item) => item.id === editingItemId)) setEditingItemId(null);
+  }
+
+  function addNewItem(categoryId: string) {
+    const id = newDraftId();
+    updateDraft((current) => addItem(current, categoryId, id));
+    setExpanded((current) => new Set(current).add(categoryId));
+    setEditingItemId(id);
+  }
+
+  function deleteItem(categoryId: string, itemId: string) {
+    updateDraft((current) => removeItem(current, categoryId, itemId));
+    if (editingItemId === itemId) setEditingItemId(null);
+  }
+
+  function discard() {
+    setMenu((current) => (current ? { ...current, draft: current.baseline } : current));
+    setEditingItemId(null);
+    setRenamingId(null);
+  }
+
+  async function save() {
+    const input = draftToSave(draft);
+    if (!input) {
+      notify({ kind: 'error', text: t.common.saveError });
+      return;
+    }
+    setSaving(true);
+    try {
+      await call('/menu', { method: 'PUT', json: input });
+      notify({ kind: 'ok', text: t.common.saved });
+      setAttempt((n) => n + 1);
+    } catch (error) {
+      notify({ kind: 'error', text: errorText(error) });
+    } finally {
+      setSaving(false);
     }
   }
 
   return (
-    <form onSubmit={add} className="mt-4">
-      <fieldset className="flex flex-wrap items-end gap-3">
-        <legend className="mb-2 text-base font-semibold">
-          {t.menu.newItem}: {categoryName}
-        </legend>
-        <TextField
-          className="min-w-48 flex-[2]"
-          label={t.menu.itemName}
-          value={name}
-          maxLength={MENU_LIMITS.nameMax}
-          required
-          onChange={(e) => setName(e.target.value)}
-        />
-        <TextField
-          className="w-32"
-          label={t.menu.price}
-          value={price}
-          inputMode="decimal"
-          required
-          error={priceError}
-          onChange={(e) => setPrice(e.target.value)}
-        />
-        <TextField
-          className="w-32"
-          label={t.menu.priceLarge}
-          value={priceLarge}
-          inputMode="decimal"
-          error={priceLargeError}
-          onChange={(e) => setPriceLarge(e.target.value)}
-        />
-        <Button type="submit" variant="secondary" disabled={!name.trim() || !price.trim()}>
-          {t.menu.addItem}
-        </Button>
-      </fieldset>
-    </form>
-  );
-}
+    <>
+      <h1 className="text-2xl font-bold">{t.menu.title}</h1>
 
-function NewCategoryForm({ run }: { run: Run }) {
-  const { call } = useAdmin();
-  const [name, setName] = useState('');
-
-  async function add(event: FormEvent) {
-    event.preventDefault();
-    const ok = await run(
-      () => call('/categories', { method: 'POST', json: { name } }),
-      t.common.added,
-    );
-    if (ok) setName('');
-  }
-
-  return (
-    <form onSubmit={add} className="mt-8 rounded-md border border-dashed border-rule p-4">
-      <fieldset className="flex flex-wrap items-end gap-3">
-        <legend className="mb-2 text-base font-semibold">{t.menu.newCategory}</legend>
+      <form onSubmit={addNewCategory} className="mt-4 flex flex-wrap items-end gap-3">
         <TextField
           className="min-w-48 flex-1"
-          label={t.menu.categoryName}
-          value={name}
+          label={t.menu.newCategoryName}
+          value={newCategoryName}
           maxLength={MENU_LIMITS.nameMax}
-          required
-          onChange={(e) => setName(e.target.value)}
+          onChange={(event) => setNewCategoryName(event.target.value)}
         />
-        <Button type="submit" variant="secondary" disabled={!name.trim()}>
+        <Button type="submit" variant="secondary" disabled={!newCategoryName.trim()}>
           {t.menu.addCategory}
         </Button>
-      </fieldset>
-    </form>
+      </form>
+
+      {draft.length === 0 ? <p className="mt-6">{t.menu.noCategories}</p> : null}
+
+      <SortableList
+        ids={draft.map((category) => category.id)}
+        onReorder={(activeId, overId) =>
+          updateDraft((current) => reorderById(current, activeId, overId))
+        }
+        className="mt-6 flex flex-col gap-3"
+      >
+        {draft.map((category) => (
+          <SortableRow
+            key={category.id}
+            id={category.id}
+            label={`${category.name}: ${t.menu.reorder}`}
+          >
+            {(handle) => (
+              <MenuCategoryBox
+                category={category}
+                handle={handle}
+                expanded={expanded.has(category.id)}
+                renaming={renamingId === category.id}
+                editingItemId={editingItemId}
+                onToggle={() => toggleExpanded(category.id)}
+                onRename={() =>
+                  setRenamingId((current) => (current === category.id ? null : category.id))
+                }
+                onChange={(patch) =>
+                  updateDraft((current) => updateCategory(current, category.id, patch))
+                }
+                onDelete={() => deleteCategory(category)}
+                onAddItem={() => addNewItem(category.id)}
+                onEditItem={(itemId) => setEditingItemId(itemId)}
+                onChangeItem={(itemId, patch) =>
+                  updateDraft((current) => updateItem(current, category.id, itemId, patch))
+                }
+                onReorderItem={(activeId, overId) =>
+                  updateDraft((current) => reorderItems(current, category.id, activeId, overId))
+                }
+                onDeleteItem={(itemId) => deleteItem(category.id, itemId)}
+                onFinishItem={() => setEditingItemId(null)}
+              />
+            )}
+          </SortableRow>
+        ))}
+      </SortableList>
+
+      {dirty ? (
+        <div className="sticky bottom-0 -mx-4 mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-rule bg-background px-4 py-3">
+          <p className="text-sm font-semibold">{editing ? t.menu.finishEditing : t.menu.unsaved}</p>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" disabled={saving} onClick={discard}>
+              {t.menu.discard}
+            </Button>
+            <Button loading={saving} disabled={editing} onClick={() => void save()}>
+              {t.common.save}
+            </Button>
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 }

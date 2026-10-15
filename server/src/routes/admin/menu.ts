@@ -1,8 +1,14 @@
 import { Router } from 'express';
 import { isValidObjectId } from 'mongoose';
-import { categoryInputSchema, menuItemInputSchema, moveInputSchema } from '@faralyah/shared';
+import {
+  categoryInputSchema,
+  menuItemInputSchema,
+  menuSaveSchema,
+  moveInputSchema,
+} from '@faralyah/shared';
 import { getAdminMenu } from '../../lib/admin-menu';
 import { moveInGroup, nextOrder } from '../../lib/reorder';
+import { hasDuplicateIds, saveAdminMenu } from '../../lib/save-menu';
 import { parseBody, validId } from '../../lib/validate';
 import { Category } from '../../models/category';
 import { MenuItem } from '../../models/menu-item';
@@ -17,6 +23,18 @@ const itemPatch = itemCreate.partial();
 adminMenuRouter.get('/menu', async (_req, res) => {
   res.set('Cache-Control', 'no-store');
   res.json(await getAdminMenu());
+});
+
+/** Saves the whole menu the panel shows (one Kaydet for every change, see admin menu page). */
+adminMenuRouter.put('/menu', async (req, res) => {
+  const input = parseBody(menuSaveSchema, req, res);
+  if (!input) return;
+  if (hasDuplicateIds(input)) {
+    res.status(400).json({ error: 'duplicate_id' });
+    return;
+  }
+  await saveAdminMenu(input);
+  res.status(204).end();
 });
 
 adminMenuRouter.post('/categories', async (req, res) => {

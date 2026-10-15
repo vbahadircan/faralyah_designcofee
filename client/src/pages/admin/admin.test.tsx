@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -64,43 +64,84 @@ describe('admin panel', () => {
     expect(screen.getByLabelText(t.login.password)).toHaveValue('');
   });
 
-  it('changes a price with the CSRF token and confirms it', async () => {
+  it('starts categories collapsed and saves a price change with one Kaydet', async () => {
     const fetchMock = stubApi({
       'GET /api/admin/session': () => jsonResponse(SESSION),
       'GET /api/admin/menu': () => jsonResponse(MENU),
-      'PATCH /api/admin/items/i1': () => new Response(null, { status: 204 }),
+      'PUT /api/admin/menu': () => new Response(null, { status: 204 }),
     });
     const user = userEvent.setup();
     renderAt('/admin');
 
-    const item = await screen.findByRole('group', { name: 'Örnek Ürün' });
-    const price = within(item).getByLabelText(t.menu.price);
+    const category = await screen.findByRole('button', {
+      name: `Sıcak İçecekler ${t.menu.itemCount(1)}`,
+    });
+    expect(category).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText('Örnek Ürün')).not.toBeInTheDocument();
+
+    await user.click(category);
+    await user.click(screen.getByRole('button', { name: `Örnek Ürün: ${t.menu.moreActions}` }));
+    await user.click(screen.getByRole('menuitem', { name: t.menu.editItem }));
+    const price = screen.getByLabelText(t.menu.price);
     expect(price).toHaveValue('125,50');
     await user.clear(price);
     await user.type(price, '140');
-    await user.click(within(item).getByRole('button', { name: t.common.save }));
+    await user.click(screen.getByRole('button', { name: t.menu.done }));
+    await user.click(screen.getByRole('button', { name: t.common.save }));
 
-    expect(await screen.findByRole('status')).toHaveTextContent(t.common.saved);
-    const call = fetchMock.mock.calls.find(([, init]) => init?.method === 'PATCH');
-    expect(call?.[0]).toBe('/api/admin/items/i1');
+    // dnd-kit adds its own status region, so look for the saved message itself.
+    expect(await screen.findByText(t.common.saved)).toBeInTheDocument();
+    const call = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT');
     expect((call?.[1]?.headers as Record<string, string>)['X-CSRF-Token']).toBe('token-123');
-    expect(JSON.parse(String(call?.[1]?.body))).toMatchObject({ priceKurus: 14000 });
+    expect(JSON.parse(String(call?.[1]?.body))).toMatchObject({
+      categories: [
+        {
+          id: 'c1',
+          name: 'Sıcak İçecekler',
+          items: [{ id: 'i1', name: 'Örnek Ürün', priceKurus: 14000, visible: true }],
+        },
+      ],
+    });
   });
 
-  it('rejects a price it cannot read without calling the server', async () => {
+  it('keeps a price it cannot read out of the save', async () => {
     const fetchMock = stubApi({
       'GET /api/admin/session': () => jsonResponse(SESSION),
       'GET /api/admin/menu': () => jsonResponse(MENU),
     });
     const user = userEvent.setup();
     renderAt('/admin');
-    const item = await screen.findByRole('group', { name: 'Örnek Ürün' });
-    const price = within(item).getByLabelText(t.menu.price);
+    await user.click(
+      await screen.findByRole('button', { name: `Sıcak İçecekler ${t.menu.itemCount(1)}` }),
+    );
+    await user.click(screen.getByRole('button', { name: `Örnek Ürün: ${t.menu.moreActions}` }));
+    await user.click(screen.getByRole('menuitem', { name: t.menu.editItem }));
+
+    const price = screen.getByLabelText(t.menu.price);
     await user.clear(price);
     await user.type(price, 'on lira');
-    await user.click(within(item).getByRole('button', { name: t.common.save }));
     expect(price).toHaveAccessibleDescription(t.common.invalidPrice);
-    expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'PATCH')).toBe(false);
+    expect(screen.getByRole('button', { name: t.menu.done })).toBeDisabled();
+    // The editor is still open, so the page's Kaydet waits for it.
+    expect(screen.getByRole('button', { name: t.common.save })).toBeDisabled();
+    expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'PUT')).toBe(false);
+  });
+
+  it('adds a category from its name alone and leaves it collapsed', async () => {
+    stubApi({
+      'GET /api/admin/session': () => jsonResponse(SESSION),
+      'GET /api/admin/menu': () => jsonResponse({ categories: [] }),
+    });
+    const user = userEvent.setup();
+    renderAt('/admin');
+
+    await user.type(await screen.findByLabelText(t.menu.newCategoryName), 'Soğuk İçecekler');
+    await user.click(screen.getByRole('button', { name: t.menu.addCategory }));
+
+    expect(
+      screen.getByRole('button', { name: `Soğuk İçecekler ${t.menu.itemCount(0)}` }),
+    ).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByRole('button', { name: t.common.save })).toBeEnabled();
   });
 
   it('saves the Wi-Fi password from the Ayarlar page', async () => {

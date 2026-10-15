@@ -100,6 +100,7 @@ Türk Kahvesi ............................ 90 ₺
 ```
 
 - Anatomy: name (left, `--font-body`, `--text-base`, wraps up to 2 lines) · dotted leader (decorative, `aria-hidden`) · price tag (right, no wrap) · optional one-line description in `--text-muted`.
+- Two-size sections (KÜÇÜK / BÜYÜK column heads): an item with only one price puts it at the right edge across both columns, with no size label and no dash.
 - Row separation: 1 px `--color-rule` hairline or just vertical rhythm; no boxes.
 - Min height 48 px; padding `--space-3` vertical.
 - Hover: `--color-tint` background (only if the row is interactive).
@@ -142,19 +143,19 @@ Built from the cafe's inspiration mock-up; chosen by the owner over the earlier 
 
 One card per published campaign, in the order staff set.
 
-- Anatomy: photo on top (4:3, `object-cover`, decorative `alt=""`) · title (`h2`) and price block side by side · optional description · one secondary button "Bilgi al". Without a photo there is no banner: a 48 px brand-gradient tile (`aria-hidden`) with a lucide icon sits beside the title. The icon comes from keywords in the title (figür, taşlı, tuval, çocuk; `lib/campaign-icon.ts`), falling back to a palette icon; no new colors.
+- Anatomy: photo on top on phones, full width; from 640 px (the content column width) it sits left at 224 px wide and the text fills the right. Photos keep their true ratio (never cropped, no fixed aspect box); the card grows to fit. · title (`h2`) and price block side by side · optional description. Without a photo there is no banner: a 48 px brand-gradient tile (`aria-hidden`) with a lucide icon sits beside the title. The icon comes from keywords in the title (figür, taşlı, tuval, çocuk; `lib/campaign-icon.ts`), falling back to a palette icon; no new colors.
 - The price carries a visually hidden label ("Kampanya fiyatı"); never color-only.
-- Online booking is out of scope for v1, so the button toggles an inline note (`aria-expanded` / `aria-controls`) telling people to ask the staff; it must never look like a checkout.
-- The note reveals with a height + opacity transition (300 ms, `grid-template-rows` 0fr → 1fr); collapsed, it is `visibility: hidden`, so it is out of the tab order and accessibility tree. Under `prefers-reduced-motion` the global rule makes it instant.
-- With two or more campaigns a sticky jump strip sits above the list (same scroll-spy as §4.3, shared `useScrollSpy`): one pill chip per campaign with name and price, min height 44 px, a burgundy pill that slides to the active chip, horizontal scroll instead of truncation. Tapping a chip scrolls to the card (`scroll-mt-20`) and flashes it with a short tint (`card-flash`).
+- The card has no button and no booking note. Online booking is out of scope for v1, so the card takes no action; people book with the staff.
+- No category or jump bar on this page; the list is short and reads top to bottom.
 - Surface: `bg-background`, `--radius-xl`, `--shadow-card`, 1 px rule border.
 
 ### 4.5c Admin panel (`/admin`)
 
 - Login at `/admin/giris`; every other admin page checks the session first and sends visitors without one to the login page.
 - Layout: max width 960 px, header (title, "Siteyi gör", "Çıkış yap"), pill nav (Menü, Kampanyalar), a sticky live region (`role="status"`) for "Kaydedildi." and errors.
-- Editing is inline: each row is a `<fieldset>` named by the item, with labelled 16 px inputs, "Menüde göster" / "Yayında" checkboxes, a Kaydet button, and up / down / delete icon buttons whose `aria-label` names the item. Delete asks for confirmation.
-- Prices are typed as Turkish text ("120", "42,50") and parsed with `parsePriceInput`; an unreadable price shows an error under the field and nothing is sent.
+- Menu editor (`/admin`, decision 2026-10-14): categories are boxes that start collapsed; the header toggles the product list (`aria-expanded`). Categories and products are reordered by dragging a 44 px grip handle (`@dnd-kit`, pointer, touch and keyboard: Space, arrows, Space). Each row has one three-dot button (`aria-haspopup="menu"`) for "Düzenle" and "Sil"; its `aria-label` names the row. Only one product editor is open at a time, and its fields are 16 px inputs with "Menüde göster" / "Yayında" checkboxes and a "Tamam" button.
+- One Kaydet for the whole menu: edits stay in the panel until the bottom bar's Kaydet, which sends the full menu to `PUT /api/admin/menu`. The bar shows only when there are unsaved changes, and Kaydet waits while a product or category editor is open. Vazgeç drops the unsaved changes.
+- Prices are typed as Turkish text ("120", "42,50") and parsed with `parsePriceInput`; an unreadable price keeps its editor open with an error under the field, "Tamam" stays disabled, and nothing is sent.
 
 ### 4.6 shadcn primitives
 

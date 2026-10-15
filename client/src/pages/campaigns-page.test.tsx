@@ -26,30 +26,12 @@ describe('CampaignsPage', () => {
     expect(screen.getAllByRole('article')).toHaveLength(2);
   });
 
-  it('reveals the ask-the-staff note from the button', async () => {
+  it('has no jump strip and no booking button; the staff are the way to book', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(sampleCampaigns)));
-    const user = userEvent.setup();
     renderPage();
-    const card = await screen.findByRole('article', { name: 'Tuval Boyama + Kahve' });
-    const button = within(card).getByRole('button', { name: tr.campaigns.ask });
-    const note = within(card).getByText(tr.campaigns.note);
-    expect(note).not.toBeVisible();
-    await user.click(button);
-    expect(button).toHaveAttribute('aria-expanded', 'true');
-    expect(note).toBeVisible();
-  });
-
-  it('has a jump strip with a chip per campaign (name and price) pointing at its card', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(sampleCampaigns)));
-    const user = userEvent.setup();
-    renderPage();
-    const nav = await screen.findByRole('navigation', { name: tr.campaigns.title });
-    const chip = within(nav).getByRole('link', { name: /Tuval Boyama \+ Kahve/ });
-    expect(chip).toHaveTextContent(/350\s₺/);
-    expect(chip).toHaveAttribute('href', '#kampanya-k2');
-    await user.click(chip);
-    expect(chip).toHaveAttribute('aria-current', 'true');
-    expect(document.getElementById('kampanya-k2')).toHaveClass('card-flash');
+    await screen.findAllByRole('article');
+    expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
   it('shows a small icon tile instead of a banner when a campaign has no photo', async () => {

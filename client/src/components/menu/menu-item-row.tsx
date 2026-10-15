@@ -7,7 +7,7 @@ const t = tr.menu.sizes;
 /**
  * DESIGN.md §4.2. A paper-menu row, not a card: name · dotted leader · price.
  * In a `sized` section (one with small/large columns) prices line up under the column heads;
- * an item with a single price shows it as the small size and a dash under "BÜYÜK".
+ * an item with a single price puts it at the right edge across both columns, with no size label.
  */
 export function MenuItemRow({ item, sized = false }: { item: PublicMenuItem; sized?: boolean }) {
   return (
@@ -18,28 +18,21 @@ export function MenuItemRow({ item, sized = false }: { item: PublicMenuItem; siz
           aria-hidden="true"
           className="mb-1.5 min-w-4 flex-1 border-b-2 border-dotted border-rule"
         />
-        {sized || item.priceLargeKurus !== undefined ? (
+        {item.priceLargeKurus !== undefined ? (
           <>
             <span className="w-16 text-right">
               <span className="sr-only">{t.smallLabel} </span>
               <PriceTag kurus={item.priceKurus} />
             </span>
             <span className="w-16 text-right">
-              {item.priceLargeKurus !== undefined ? (
-                <>
-                  <span className="sr-only">{t.largeLabel} </span>
-                  <PriceTag kurus={item.priceLargeKurus} />
-                </>
-              ) : (
-                <>
-                  <span aria-hidden="true" className="font-semibold text-muted-foreground">
-                    {t.none}
-                  </span>
-                  <span className="sr-only">{t.noneLabel}</span>
-                </>
-              )}
+              <span className="sr-only">{t.largeLabel} </span>
+              <PriceTag kurus={item.priceLargeKurus} />
             </span>
           </>
+        ) : sized ? (
+          <span className="w-32 text-right">
+            <PriceTag kurus={item.priceKurus} />
+          </span>
         ) : (
           <PriceTag kurus={item.priceKurus} />
         )}

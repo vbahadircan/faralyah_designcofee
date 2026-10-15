@@ -7,7 +7,7 @@ const CLICK_LOCK_MS = 900;
 /**
  * Scroll-spy for sticky jump navs: the active item is the last one whose element top has passed
  * the sticky bar (or the last one at the page bottom). `select` sets it right away and pauses the
- * spy while the smooth scroll runs. Shared by the menu category tabs and the campaign strip.
+ * spy while the smooth scroll runs. Used by the menu category tabs.
  */
 export function useScrollSpy(items: { id: string }[], elementId: (id: string) => string) {
   const [activeId, setActiveId] = useState(items[0]?.id);
